@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "Lịch sử nhiệt độ";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>Hiển thị lịch sử các lần đo nhiệt độ và độ ẩm từ ESP32.</p>
+
+<table id="historyTable" style="width:100%; border-collapse: collapse; margin-top: 12px;">
+    <thead>
+        <tr style="background:#f1f5f9;">
+            <th style="padding:8px; border:1px solid #e2e8f0; text-align:left;">Thời gian</th>
+            <th style="padding:8px; border:1px solid #e2e8f0; text-align:right;">Nhiệt độ (°C)</th>
+            <th style="padding:8px; border:1px solid #e2e8f0; text-align:right;">Độ ẩm (%RH)</th>
+            <th style="padding:8px; border:1px solid #e2e8f0; text-align:left;">Thiết bị</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td colspan="4" style="padding:12px; border:1px solid #e2e8f0;">Đang tải...</td></tr>
+    </tbody>
+</table>
+
+<script>
+    async function loadHistory() {
+        try {
+            const res = await fetch('/api/data/history');
+            if (!res.ok) {
+                console.error('Failed to load history', res.status);
+                return;
+            }
+            const data = await res.json();
+            const tbody = document.querySelector('#historyTable tbody');
+            tbody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="padding:12px; border:1px solid #e2e8f0;">Không có dữ liệu lịch sử</td></tr>';
+                return;
+            }
+
+            // data items are expected to be { timestamp: "2026-05-02T12:...Z", temperature: 32.6, humidity: 69.8, deviceId: "temp_007" }
+            data.sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+
+            for (const item of data) {
+                const dt = new Date(item.timestamp);
+                const dateStr = dt.toLocaleString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                const timeStr = dt.toLocaleTimeString('vi-VN');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="padding:8px; border:1px solid #e2e8f0;">${dateStr} ${timeStr}</td>
+                    <td style="padding:8px; border:1px solid #e2e8f0; text-align:right;">${Number(item.temperature).toFixed(1)}</td>
+                    <td style="padding:8px; border:1px solid #e2e8f0; text-align:right;">${Number(item.humidity).toFixed(1)}</td>
+                    <td style="padding:8px; border:1px solid #e2e8f0;">${item.deviceId || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        } catch (err) {
+            console.error('Error loading history', err);
+        }
+    }
+
+    loadHistory();
+    setInterval(loadHistory, 5000);
+</script>

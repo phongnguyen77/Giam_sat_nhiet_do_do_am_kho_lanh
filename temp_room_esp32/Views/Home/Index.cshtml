@@ -1,0 +1,755 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard IoT Kho Lạnh</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+          background: #f1f5f9;
+          color: #0f172a;
+          padding: 24px;
+        }
+
+        .container {
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+
+        .hero {
+          background: linear-gradient(135deg, #0891b2, #2563eb);
+          color: white;
+          border-radius: 24px;
+          padding: 24px;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          gap: 20px;
+          box-shadow: 0 10px 30px rgba(37, 99, 235, 0.18);
+        }
+
+        .hero-left h1 {
+          font-size: 32px;
+          margin-bottom: 8px;
+        }
+
+        .hero-left p {
+          color: #e0f2fe;
+          margin-bottom: 18px;
+        }
+
+        .badges {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        .badge {
+          background: rgba(255, 255, 255, 0.16);
+          padding: 10px 14px;
+          border-radius: 999px;
+          font-size: 14px;
+          backdrop-filter: blur(8px);
+        }
+
+        .hero-right {
+          min-width: 300px;
+          display: grid;
+          gap: 12px;
+        }
+
+        .glass-card {
+          background: rgba(255, 255, 255, 0.14);
+          border-radius: 18px;
+          padding: 16px;
+          backdrop-filter: blur(10px);
+        }
+
+        .glass-card label {
+          font-size: 14px;
+          display: block;
+          margin-bottom: 8px;
+          color: #e0f2fe;
+        }
+
+        .glass-card input {
+          width: 100%;
+          padding: 12px;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          background: rgba(255, 255, 255, 0.12);
+          color: white;
+          outline: none;
+        }
+
+        .glass-card input::placeholder {
+          color: #dbeafe;
+        }
+
+        .refresh-box {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .btn {
+          border: none;
+          background: white;
+          color: #0f172a;
+          padding: 10px 16px;
+          border-radius: 12px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+
+        .btn:hover {
+          background: #e2e8f0;
+        }
+
+        .grid {
+          margin-top: 24px;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 18px;
+        }
+
+        .card {
+          background: white;
+          border-radius: 22px;
+          padding: 20px;
+          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .card-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .muted {
+          color: #64748b;
+          font-size: 14px;
+        }
+
+        .value-row {
+          display: flex;
+          align-items: flex-end;
+          gap: 8px;
+          margin: 10px 0 8px;
+        }
+
+        .value {
+          font-size: 40px;
+          font-weight: bold;
+          line-height: 1;
+        }
+
+        .unit {
+          color: #64748b;
+          margin-bottom: 6px;
+        }
+
+        .icon-box {
+          width: 52px;
+          height: 52px;
+          border-radius: 18px;
+          display: grid;
+          place-items: center;
+          color: white;
+          font-size: 24px;
+          font-weight: bold;
+        }
+
+        .temp-ok { background: #0891b2; }
+        .temp-alert { background: #ef4444; }
+        .hum-ok { background: #2563eb; }
+        .hum-alert { background: #f59e0b; }
+
+        .status-line {
+          margin-top: 14px;
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .ok { color: #059669; }
+        .alert { color: #d97706; }
+
+        .content-grid {
+          margin-top: 24px;
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 20px;
+        }
+
+        .chart-card,
+        .settings-card,
+        .guide-card {
+          background: white;
+          border-radius: 22px;
+          padding: 20px;
+          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .chart-card h2,
+        .settings-card h2,
+        .guide-card h2 {
+          font-size: 22px;
+          margin-bottom: 16px;
+        }
+
+        .chart-wrap {
+          position: relative;
+          width: 100%;
+          height: 360px;
+          background: linear-gradient(to bottom, #f8fafc, #ffffff);
+          border-radius: 18px;
+          border: 1px solid #e2e8f0;
+          padding: 12px;
+        }
+
+        #chartCanvas {
+          width: 100%;
+          height: 100%;
+          display: block;
+        }
+
+        .legend {
+          display: flex;
+          gap: 18px;
+          margin-top: 12px;
+          font-size: 14px;
+          color: #475569;
+        }
+
+        .legend span {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .legend i {
+          width: 14px;
+          height: 14px;
+          display: inline-block;
+          border-radius: 99px;
+        }
+
+        .temp-dot { background: #0891b2; }
+        .hum-dot { background: #2563eb; }
+
+        .setting-group {
+          margin-bottom: 14px;
+        }
+
+        .setting-group label {
+          display: block;
+          font-size: 14px;
+          font-weight: bold;
+          margin-bottom: 8px;
+          color: #334155;
+        }
+
+        .setting-group input {
+          width: 100%;
+          padding: 12px;
+          border-radius: 12px;
+          border: 1px solid #cbd5e1;
+          outline: none;
+          font-size: 15px;
+        }
+
+        .note {
+          margin-top: 14px;
+          background: #f8fafc;
+          color: #475569;
+          border-radius: 16px;
+          padding: 14px;
+          font-size: 14px;
+          line-height: 1.6;
+        }
+
+        .guide-card {
+          margin-top: 24px;
+        }
+
+        .guide-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 16px;
+        }
+
+        .guide-item {
+          background: #f8fafc;
+          border-radius: 18px;
+          padding: 16px;
+        }
+
+        .guide-item h3 {
+          margin-bottom: 10px;
+          font-size: 18px;
+        }
+
+        .guide-item p {
+          color: #475569;
+          font-size: 14px;
+          line-height: 1.6;
+        }
+
+        @@media (max-width: 980px) {
+          .content-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @@media (max-width: 640px) {
+          body {
+            padding: 14px;
+          }
+
+          .hero-left h1 {
+            font-size: 26px;
+          }
+
+          .value {
+            font-size: 34px;
+          }
+
+          .refresh-box {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <section class="hero">
+            <div class="hero-left">
+                <h1>❄️ Dashboard IoT Kho Lạnh</h1>
+                <p>Giám sát nhiệt độ và độ ẩm theo thời gian thực cho kho bảo quản lạnh.</p>
+                <div class="badges">
+                    <div class="badge" id="deviceStatus">📶 Thiết bị đang kết nối</div>
+                    <div class="badge">📊 Trạng thái hệ thống: <strong id="overallStatus">Ổn định</strong></div>
+                </div>
+            </div>
+
+            <div class="hero-right">
+                <div class="glass-card">
+                    <label for="warehouseName">Tên kho</label>
+                    <input id="warehouseName" type="text" value="Kho lạnh A1" placeholder="Nhập tên kho lạnh" />
+                </div>
+
+                <div class="glass-card refresh-box">
+                    <div>
+                        <div style="font-size: 14px; color: #e0f2fe;">Cập nhật cuối</div>
+                        <div id="lastUpdate" style="font-weight: bold; margin-top: 4px;">--:--:--</div>
+                    </div>
+                    <button class="btn" onclick="refreshData()">Làm mới</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid">
+            <div class="card">
+                <div class="card-top">
+                    <div>
+                        <div class="muted">Nhiệt độ hiện tại</div>
+                        <div class="value-row">
+                            <div class="value" id="temperatureValue">0.0</div>
+                            <div class="unit">°C</div>
+                        </div>
+                        <div class="muted" id="tempRangeText">Ngưỡng cài đặt: 2°C đến 8°C</div>
+                    </div>
+                    <div class="icon-box temp-ok" id="tempIcon">🌡️</div>
+                </div>
+                <div class="status-line ok" id="tempStatusText">Trong ngưỡng an toàn</div>
+            </div>
+
+            <div class="card">
+                <div class="card-top">
+                    <div>
+                        <div class="muted">Độ ẩm hiện tại</div>
+                        <div class="value-row">
+                            <div class="value" id="humidityValue">0.0</div>
+                            <div class="unit">%RH</div>
+                        </div>
+                        <div class="muted" id="humRangeText">Ngưỡng cài đặt: 60% đến 85%</div>
+                    </div>
+                    <div class="icon-box hum-ok" id="humIcon">💧</div>
+                </div>
+                <div class="status-line ok" id="humStatusText">Trong ngưỡng an toàn</div>
+            </div>
+
+            <div class="card">
+                <div class="muted">Tên kho đang giám sát</div>
+                <div style="font-size: 28px; font-weight: bold; margin-top: 10px;" id="warehouseNameDisplay">Kho lạnh A1</div>
+                <div style="background: #f1f5f9; border-radius: 16px; padding: 14px; margin-top: 16px;">
+                    <div class="muted">Mã thiết bị</div>
+                    <div style="font-weight: bold; margin-top: 6px;">ESP32-COLD-01</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="muted">Cảnh báo</div>
+                <div style="display: flex; gap: 12px; align-items: flex-start; margin-top: 12px;">
+                    <div style="font-size: 34px;" id="alertIcon">✅</div>
+                    <div>
+                        <div style="font-size: 26px; font-weight: bold;" id="alertTitle">Ổn định</div>
+                        <div class="muted" id="alertMessage" style="margin-top: 6px; line-height: 1.5;">
+                            Thông số kho đang trong mức cho phép.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-grid">
+            <div class="chart-card">
+                <h2>Biểu đồ thời gian thực</h2>
+                <div class="chart-wrap">
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+                <div class="legend">
+                    <span><i class="temp-dot"></i> Nhiệt độ (°C)</span>
+                    <span><i class="hum-dot"></i> Độ ẩm (%RH)</span>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <h2>Cài đặt ngưỡng cảnh báo</h2>
+
+                <div class="setting-group">
+                    <label for="minTemp">Nhiệt độ thấp nhất (°C)</label>
+                    <input id="minTemp" type="number" value="2" />
+                </div>
+
+                <div class="setting-group">
+                    <label for="maxTemp">Nhiệt độ cao nhất (°C)</label>
+                    <input id="maxTemp" type="number" value="8" />
+                </div>
+
+                <div class="setting-group">
+                    <label for="minHumidity">Độ ẩm thấp nhất (%RH)</label>
+                    <input id="minHumidity" type="number" value="60" />
+                </div>
+
+                <div class="setting-group">
+                    <label for="maxHumidity">Độ ẩm cao nhất (%RH)</label>
+                    <input id="maxHumidity" type="number" value="85" />
+                </div>
+
+                <div class="note">
+                    Gợi ý tích hợp thực tế: thay phần dữ liệu mô phỏng bằng dữ liệu từ MQTT, WebSocket hoặc REST API do ESP32 / backend của bạn gửi lên.
+                </div>
+            </div>
+        </section>
+
+        <section class="guide-card">
+            <h2>Hướng dẫn kết nối dữ liệu thật</h2>
+            <div class="guide-grid">
+                <div class="guide-item">
+                    <h3>1. ESP32 gửi dữ liệu</h3>
+                    <p>ESP32 đọc cảm biến DHT22 / SHT20 / SHT31 và gửi JSON gồm: temperature, humidity, deviceId, timestamp.</p>
+                </div>
+                <div class="guide-item">
+                    <h3>2. Backend nhận dữ liệu</h3>
+                    <p>Backend Node.js, C# hoặc Python subscribe MQTT rồi phát lại cho web qua WebSocket, SignalR hoặc REST API.</p>
+                </div>
+                <div class="guide-item">
+                    <h3>3. Website cập nhật realtime</h3>
+                    <p>Thay setInterval bằng WebSocket hoặc fetch API định kỳ để dashboard hiển thị dữ liệu thật từ thiết bị.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.11/signalr.min.js"></script>
+    <script>
+        const historyData = [];
+        const maxPoints = 18;
+
+        const warehouseNameInput = document.getElementById("warehouseName");
+        const warehouseNameDisplay = document.getElementById("warehouseNameDisplay");
+        const temperatureValue = document.getElementById("temperatureValue");
+        const humidityValue = document.getElementById("humidityValue");
+        const tempStatusText = document.getElementById("tempStatusText");
+        const humStatusText = document.getElementById("humStatusText");
+        const tempIcon = document.getElementById("tempIcon");
+        const humIcon = document.getElementById("humIcon");
+        const alertIcon = document.getElementById("alertIcon");
+        const alertTitle = document.getElementById("alertTitle");
+        const alertMessage = document.getElementById("alertMessage");
+        const overallStatus = document.getElementById("overallStatus");
+        const deviceStatus = document.getElementById("deviceStatus");
+        const lastUpdate = document.getElementById("lastUpdate");
+        const tempRangeText = document.getElementById("tempRangeText");
+        const humRangeText = document.getElementById("humRangeText");
+
+        const minTempInput = document.getElementById("minTemp");
+        const maxTempInput = document.getElementById("maxTemp");
+        const minHumidityInput = document.getElementById("minHumidity");
+        const maxHumidityInput = document.getElementById("maxHumidity");
+
+        const canvas = document.getElementById("chartCanvas");
+        const ctx = canvas.getContext("2d");
+
+        function clamp(value, min, max) {
+          return Math.max(min, Math.min(max, value));
+        }
+
+        function formatTime(date) {
+          return date.toLocaleTimeString("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+          });
+        }
+
+        function resizeCanvas() {
+          const rect = canvas.getBoundingClientRect();
+          canvas.width = rect.width * window.devicePixelRatio;
+          canvas.height = rect.height * window.devicePixelRatio;
+          ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+          drawChart();
+        }
+
+        function seedData() {
+          historyData.length = 0;
+          let temp = 3.8;
+          let hum = 71;
+          const now = Date.now();
+
+          for (let i = 17; i >= 0; i--) {
+            temp = clamp(temp + (Math.random() - 0.5) * 0.45, -2, 10);
+            hum = clamp(hum + (Math.random() - 0.5) * 4, 45, 95);
+
+            historyData.push({
+              time: formatTime(new Date(now - i * 3000)),
+              temperature: Number(temp.toFixed(1)),
+              humidity: Number(hum.toFixed(1))
+            });
+          }
+        }
+
+        function getLimits() {
+          return {
+            minTemp: Number(minTempInput.value),
+            maxTemp: Number(maxTempInput.value),
+            minHumidity: Number(minHumidityInput.value),
+            maxHumidity: Number(maxHumidityInput.value)
+          };
+        }
+
+        function updateDashboard() {
+          const current = historyData[historyData.length - 1];
+          const { minTemp, maxTemp, minHumidity, maxHumidity } = getLimits();
+          const tempOk = current.temperature >= minTemp && current.temperature <= maxTemp;
+          const humOk = current.humidity >= minHumidity && current.humidity <= maxHumidity;
+          const online = Math.random() > 0.06;
+          const stable = online && tempOk && humOk;
+
+          warehouseNameDisplay.textContent = warehouseNameInput.value || "Kho lạnh A1";
+          temperatureValue.textContent = current.temperature.toFixed(1);
+          humidityValue.textContent = current.humidity.toFixed(1);
+          tempRangeText.textContent = `Ngưỡng cài đặt: ${minTemp}°C đến ${maxTemp}°C`;
+          humRangeText.textContent = `Ngưỡng cài đặt: ${minHumidity}% đến ${maxHumidity}%`;
+          lastUpdate.textContent = formatTime(new Date());
+
+          tempStatusText.textContent = tempOk ? "Trong ngưỡng an toàn" : "Cần kiểm tra ngay";
+          humStatusText.textContent = humOk ? "Trong ngưỡng an toàn" : "Cần kiểm tra ngay";
+          tempStatusText.className = `status-line ${tempOk ? "ok" : "alert"}`;
+          humStatusText.className = `status-line ${humOk ? "ok" : "alert"}`;
+          tempIcon.className = `icon-box ${tempOk ? "temp-ok" : "temp-alert"}`;
+          humIcon.className = `icon-box ${humOk ? "hum-ok" : "hum-alert"}`;
+
+          deviceStatus.textContent = online ? "📶 Thiết bị đang kết nối" : "📴 Mất kết nối thiết bị";
+          overallStatus.textContent = stable ? "Ổn định" : "Cảnh báo";
+          alertIcon.textContent = stable ? "✅" : "⚠️";
+          alertTitle.textContent = stable ? "Ổn định" : "Cảnh báo";
+          alertMessage.textContent = stable
+            ? "Thông số kho đang trong mức cho phép."
+            : "Có ít nhất một thông số vượt ngưỡng hoặc thiết bị mất kết nối.";
+
+          drawChart();
+        }
+
+        function drawAxes(width, height, padding) {
+          ctx.strokeStyle = "#cbd5e1";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(padding.left, padding.top);
+          ctx.lineTo(padding.left, height - padding.bottom);
+          ctx.lineTo(width - padding.right, height - padding.bottom);
+          ctx.stroke();
+        }
+
+        function drawGrid(width, height, padding) {
+          const lines = 5;
+          ctx.strokeStyle = "#e2e8f0";
+          ctx.lineWidth = 1;
+          for (let i = 0; i <= lines; i++) {
+            const y = padding.top + ((height - padding.top - padding.bottom) / lines) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(width - padding.right, y);
+            ctx.stroke();
+          }
+        }
+
+        function drawLine(data, key, color, minValue, maxValue, width, height, padding) {
+          const chartWidth = width - padding.left - padding.right;
+          const chartHeight = height - padding.top - padding.bottom;
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+
+          data.forEach((item, index) => {
+            const x = padding.left + (chartWidth / (data.length - 1 || 1)) * index;
+            const value = item[key];
+            const normalized = (value - minValue) / (maxValue - minValue || 1);
+            const y = padding.top + chartHeight - normalized * chartHeight;
+            if (index === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+
+          ctx.stroke();
+        }
+
+        function drawLabels(data, width, height, padding) {
+          ctx.fillStyle = "#64748b";
+          ctx.font = "12px Arial";
+
+          const step = Math.max(1, Math.floor(data.length / 6));
+          data.forEach((item, index) => {
+            if (index % step === 0 || index === data.length - 1) {
+              const chartWidth = width - padding.left - padding.right;
+              const x = padding.left + (chartWidth / (data.length - 1 || 1)) * index;
+              ctx.fillText(item.time, x - 18, height - 12);
+            }
+          });
+        }
+
+        function drawChart() {
+          const rect = canvas.getBoundingClientRect();
+          const width = rect.width;
+          const height = rect.height;
+          ctx.clearRect(0, 0, width, height);
+
+          if (!historyData.length) return;
+
+          const padding = { top: 20, right: 20, bottom: 40, left: 40 };
+          drawGrid(width, height, padding);
+          drawAxes(width, height, padding);
+          drawLine(historyData, "temperature", "#0891b2", -2, 10, width, height, padding);
+          drawLine(historyData, "humidity", "#2563eb", 40, 100, width, height, padding);
+          drawLabels(historyData, width, height, padding);
+        }
+
+        function generateNextData() {
+          const last = historyData[historyData.length - 1] || { temperature: 3.8, humidity: 71 };
+          const nextTemp = clamp(last.temperature + (Math.random() - 0.5) * 0.6, -2, 10);
+          const nextHumidity = clamp(last.humidity + (Math.random() - 0.5) * 5, 45, 95);
+
+          historyData.push({
+            time: formatTime(new Date()),
+            temperature: Number(nextTemp.toFixed(1)),
+            humidity: Number(nextHumidity.toFixed(1))
+          });
+
+          if (historyData.length > maxPoints) {
+            historyData.shift();
+          }
+
+          updateDashboard();
+        }
+
+        function refreshData() {
+          seedData();
+          updateDashboard();
+        }
+
+        warehouseNameInput.addEventListener("input", () => {
+          warehouseNameDisplay.textContent = warehouseNameInput.value || "Kho lạnh A1";
+        });
+
+        [minTempInput, maxTempInput, minHumidityInput, maxHumidityInput].forEach((input) => {
+          input.addEventListener("input", updateDashboard);
+        });
+
+        window.addEventListener("resize", resizeCanvas);
+
+        seedData();
+        setTimeout(resizeCanvas, 50);
+        updateDashboard();
+
+                async function fetchData() {
+            try {
+                // call the Web API endpoint exposed by DataController
+                const res = await fetch('/api/data');
+                if (res.ok) {
+                    const data = await res.json();
+
+                    // MQTT payload may be nested like: { device: {...}, data: { temperature: 32.6, humidity: 69.8 }, ... }
+                    // Normalize to the inner sensor object if present
+                    const sensor = (data && data.data) ? data.data : data;
+
+                    // update dashboard elements if values exist
+                    if (sensor) {
+                        if (sensor.temperature !== undefined && sensor.temperature !== null) {
+                            temperatureValue.textContent = Number(sensor.temperature).toFixed(1);
+                        }
+                        if (sensor.humidity !== undefined && sensor.humidity !== null) {
+                            humidityValue.textContent = Number(sensor.humidity).toFixed(1);
+                        }
+                        lastUpdate.textContent = formatTime(new Date());
+                    }
+                }
+            } catch (err) {
+                console.error("Fetch error:", err);
+            }
+        }
+
+        // SignalR connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/mqttHub')
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on('ReceiveReading', (reading) => {
+            try {
+                const ts = new Date(reading.timestamp);
+                lastUpdate.textContent = ts.toLocaleTimeString('vi-VN');
+                if (reading.temperature !== undefined) {
+                    temperatureValue.textContent = Number(reading.temperature).toFixed(1);
+                }
+                if (reading.humidity !== undefined) {
+                    humidityValue.textContent = Number(reading.humidity).toFixed(1);
+                }
+            } catch (err) {
+                console.error('Invalid reading', err);
+            }
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+
+        setInterval(fetchData, 3000);
+        fetchData(); // chạy ngay lần đầu
+    </script>
+
+</body>
+</html>

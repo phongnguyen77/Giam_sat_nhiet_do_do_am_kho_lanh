@@ -1,0 +1,22 @@
+[
+  {
+    "ContainingType": "DataController",
+    "Method": "Get",
+    "RelativePath": "api/Data",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DataController",
+    "Method": "GetHistory",
+    "RelativePath": "api/Data/history",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]
