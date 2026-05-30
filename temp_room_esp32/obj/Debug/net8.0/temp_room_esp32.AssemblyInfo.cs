@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("temp_room_esp32")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6fd3993eb68b299201e82c400cab49e3c2dc31f0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1da5d4491282a66865120a9b891c6a1953de7f70")]
 [assembly: System.Reflection.AssemblyProductAttribute("temp_room_esp32")]
 [assembly: System.Reflection.AssemblyTitleAttribute("temp_room_esp32")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

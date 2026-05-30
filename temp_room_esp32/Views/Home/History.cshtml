@@ -1,62 +1,768 @@
-﻿@{
-    ViewData["Title"] = "Lịch sử nhiệt độ";
+@{
+    ViewData["Title"] = "Lịch sử đo lường";
+    Layout = null;
 }
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lịch sử – ESP32 Cold Monitor</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<h1>@ViewData["Title"]</h1>
+        body {
+            background: #0a0e17;
+            color: #e6edf3;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            padding: 24px 20px;
+        }
 
-<p>Hiển thị lịch sử các lần đo nhiệt độ và độ ẩm từ ESP32.</p>
+        /* ── Topbar ── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
 
-<table id="historyTable" style="width:100%; border-collapse: collapse; margin-top: 12px;">
-    <thead>
-        <tr style="background:#f1f5f9;">
-            <th style="padding:8px; border:1px solid #e2e8f0; text-align:left;">Thời gian</th>
-            <th style="padding:8px; border:1px solid #e2e8f0; text-align:right;">Nhiệt độ (°C)</th>
-            <th style="padding:8px; border:1px solid #e2e8f0; text-align:right;">Độ ẩm (%RH)</th>
-            <th style="padding:8px; border:1px solid #e2e8f0; text-align:left;">Thiết bị</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr><td colspan="4" style="padding:12px; border:1px solid #e2e8f0;">Đang tải...</td></tr>
-    </tbody>
-</table>
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, #0090d4, #005fa3);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 12px rgba(0,144,212,0.4);
+        }
+
+        .brand-icon svg {
+            width: 20px; height: 20px;
+            fill: none; stroke: #fff; stroke-width: 2;
+            stroke-linecap: round; stroke-linejoin: round;
+        }
+
+        .brand-name { font-size: 1rem; font-weight: 700; color: #e6edf3; }
+        .brand-name span { color: #00b4ff; }
+
+        .topbar-nav { display: flex; gap: 6px; align-items: center; }
+
+        .nav-link {
+            color: #8b949e; font-size: 0.88rem;
+            padding: 7px 14px; border-radius: 8px;
+            text-decoration: none;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .nav-link:hover { color: #e6edf3; background: rgba(255,255,255,0.06); }
+        .nav-link.active { color: #00b4ff; background: rgba(0,180,255,0.06); }
+
+        .logout-btn {
+            background: rgba(248,81,73,0.12);
+            color: #f85149; border: 1px solid rgba(248,81,73,0.2);
+            font-size: 0.85rem; padding: 7px 14px; border-radius: 8px;
+            cursor: pointer; text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .logout-btn:hover { background: rgba(248,81,73,0.22); color: #f85149; }
+
+        /* ── Container ── */
+        .container { max-width: 1280px; margin: 0 auto; }
+
+        /* ── Page header ── */
+        .page-header {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header h1 { font-size: 1.4rem; font-weight: 700; }
+        .page-header p  { color: #7d8590; font-size: 0.85rem; margin-top: 4px; }
+
+        .btn-export {
+            background: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #10b981;
+            padding: 8px 16px; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            transition: background 0.15s;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+        }
+
+        .btn-export:hover { background: rgba(16,185,129,0.22); color: #10b981; }
+
+        /* ── Filter card ── */
+        .filter-card {
+            background: #111827;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+
+        .filter-group label {
+            font-size: 0.75rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.6px;
+            color: #7d8590;
+        }
+
+        .filter-group input[type="datetime-local"],
+        .filter-group input[type="date"] {
+            background: #0a0e17;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: #e6edf3;
+            font-size: 0.9rem;
+            padding: 9px 12px;
+            outline: none;
+            transition: border-color 0.2s;
+            min-width: 200px;
+        }
+
+        .filter-group input:focus {
+            border-color: rgba(0,144,212,0.5);
+            box-shadow: 0 0 0 3px rgba(0,144,212,0.1);
+        }
+
+        /* remove native calendar icon tint on dark background */
+        .filter-group input::-webkit-calendar-picker-indicator {
+            filter: invert(0.7);
+            cursor: pointer;
+        }
+
+        .quick-btns { display: flex; gap: 7px; flex-wrap: wrap; align-items: flex-end; }
+
+        .btn-quick {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #8b949e; padding: 9px 13px; border-radius: 10px;
+            font-size: 0.82rem; cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-quick:hover, .btn-quick.active {
+            background: rgba(0,144,212,0.15);
+            border-color: rgba(0,144,212,0.4);
+            color: #00b4ff;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, #0090d4, #005fa3);
+            border: none; color: #fff;
+            padding: 9px 20px; border-radius: 10px;
+            font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; align-self: flex-end;
+            box-shadow: 0 4px 12px rgba(0,144,212,0.3);
+            transition: opacity 0.15s, transform 0.1s;
+        }
+
+        .btn-search:hover  { opacity: 0.9; transform: translateY(-1px); }
+        .btn-search:active { transform: translateY(0); }
+
+        /* ── Summary cards ── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #111827;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 14px;
+            padding: 14px 16px;
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem; color: #7d8590;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .stat-card .val {
+            font-size: 1.5rem; font-weight: 700; line-height: 1;
+        }
+
+        .val-blue   { color: #00b4ff; }
+        .val-cyan   { color: #22d3ee; }
+        .val-green  { color: #3fb950; }
+        .val-orange { color: #f59e0b; }
+        .val-red    { color: #f87171; }
+        .val-purple { color: #a78bfa; }
+
+        /* ── Table card ── */
+        .table-card {
+            background: #111827;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-toolbar .title {
+            font-size: 0.95rem; font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .record-count {
+            background: rgba(0,180,255,0.12);
+            color: #00b4ff;
+            border-radius: 999px;
+            padding: 2px 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .per-page-select {
+            background: #0a0e17;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #e6edf3;
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.82rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            padding: 12px 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #7d8590;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        thead th.right { text-align: right; }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.1s;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+        tbody td {
+            padding: 11px 16px;
+            font-size: 0.88rem;
+            color: #c9d1d9;
+        }
+
+        tbody td.right { text-align: right; }
+
+        .temp-chip, .hum-chip {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px; border-radius: 999px;
+            font-weight: 600; font-size: 0.85rem;
+        }
+
+        .temp-cold   { background: rgba(0,180,255,0.12);  color: #00b4ff; }
+        .temp-ok     { background: rgba(16,185,129,0.12); color: #3fb950; }
+        .temp-warn   { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .temp-hot    { background: rgba(248,81,73,0.12);  color: #f87171; }
+
+        .hum-chip    { background: rgba(167,139,250,0.12); color: #a78bfa; }
+
+        .device-badge {
+            background: rgba(255,255,255,0.06);
+            color: #8b949e;
+            padding: 3px 10px; border-radius: 999px;
+            font-size: 0.78rem;
+        }
+
+        /* ── Pagination ── */
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .page-info { color: #7d8590; font-size: 0.82rem; }
+
+        .page-btns { display: flex; gap: 6px; }
+
+        .page-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #8b949e;
+            padding: 5px 12px; border-radius: 8px;
+            font-size: 0.82rem; cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: rgba(0,144,212,0.15);
+            border-color: rgba(0,144,212,0.35);
+            color: #00b4ff;
+        }
+
+        .page-btn.cur {
+            background: rgba(0,144,212,0.2);
+            border-color: rgba(0,144,212,0.4);
+            color: #00b4ff;
+        }
+
+        .page-btn:disabled { opacity: 0.3; cursor: default; }
+
+        /* ── States ── */
+        .state-row td {
+            text-align: center;
+            padding: 40px 16px;
+            color: #7d8590;
+        }
+
+        .spinner {
+            width: 28px; height: 28px;
+            border: 3px solid rgba(0,180,255,0.15);
+            border-top-color: #00b4ff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @@keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-icon { font-size: 2rem; margin-bottom: 10px; }
+
+        .alert-banner {
+            background: rgba(248,81,73,0.1);
+            border: 1px solid rgba(248,81,73,0.25);
+            color: #f85149;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* ── Responsive ── */
+        @@media (max-width: 640px) {
+            body { padding: 14px 12px; }
+            .filter-row { flex-direction: column; }
+            .filter-group input { min-width: 0; width: 100%; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Topbar -->
+    <nav class="topbar">
+        <a class="topbar-brand" href="/">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </div>
+            <span class="brand-name">ESP32 <span>COLD</span> MONITOR</span>
+        </a>
+        <div class="topbar-nav">
+            <a class="nav-link" href="/">Dashboard</a>
+            <a class="nav-link active" href="/Home/History">Lịch sử</a>
+            <a class="logout-btn" href="/Home/Logout">Đăng xuất</a>
+        </div>
+    </nav>
+
+    <!-- Page header -->
+    <div class="page-header">
+        <div>
+            <h1>📋 Lịch sử đo lường</h1>
+            <p>Dữ liệu nhiệt độ &amp; độ ẩm từ Firebase Realtime Database</p>
+        </div>
+        <button class="btn-export" onclick="exportCsv()">
+            ⬇ Xuất CSV
+        </button>
+    </div>
+
+    <!-- Error banner -->
+    <div class="alert-banner" id="errorBanner"></div>
+
+    <!-- Filter -->
+    <div class="filter-card">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>Từ ngày giờ</label>
+                <input type="datetime-local" id="fromInput" />
+            </div>
+            <div class="filter-group">
+                <label>Đến ngày giờ</label>
+                <input type="datetime-local" id="toInput" />
+            </div>
+
+            <div class="quick-btns">
+                <button class="btn-quick" onclick="setRange('today')">Hôm nay</button>
+                <button class="btn-quick" onclick="setRange('yesterday')">Hôm qua</button>
+                <button class="btn-quick" onclick="setRange('7days')">7 ngày</button>
+                <button class="btn-quick" onclick="setRange('month')">Tháng này</button>
+            </div>
+
+            <button class="btn-search" onclick="loadHistory()">🔍 Tìm kiếm</button>
+        </div>
+    </div>
+
+    <!-- Summary stats -->
+    <div class="summary-grid">
+        <div class="stat-card">
+            <div class="label">Tổng bản ghi</div>
+            <div class="val val-blue"  id="statTotal">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Nhiệt độ TB</div>
+            <div class="val val-cyan"  id="statAvgTemp">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Nhiệt độ Min</div>
+            <div class="val val-green" id="statMinTemp">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Nhiệt độ Max</div>
+            <div class="val val-red"   id="statMaxTemp">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Độ ẩm TB</div>
+            <div class="val val-purple" id="statAvgHum">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Độ ẩm Min/Max</div>
+            <div class="val val-orange" id="statHumRange" style="font-size:1.1rem;">--</div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+        <div class="table-toolbar">
+            <div class="title">
+                Kết quả
+                <span class="record-count" id="recordCount">0 bản ghi</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="color:#7d8590; font-size:0.82rem;">Hiển thị</span>
+                <select class="per-page-select" id="perPageSelect" onchange="renderPage(1)">
+                    <option value="25">25</option>
+                    <option value="50" selected>50</option>
+                    <option value="100">100</option>
+                </select>
+                <span style="color:#7d8590; font-size:0.82rem;">/ trang</span>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Thời gian</th>
+                        <th class="right">Nhiệt độ</th>
+                        <th class="right">Độ ẩm</th>
+                        <th>Thiết bị</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr class="state-row"><td colspan="5">
+                        <div class="empty-icon">📅</div>
+                        <div>Chọn khoảng thời gian và nhấn Tìm kiếm</div>
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination-bar">
+            <div class="page-info" id="pageInfo">--</div>
+            <div class="page-btns" id="pageBtns"></div>
+        </div>
+    </div>
+
+</div>
 
 <script>
+    let allData   = [];
+    let curPage   = 1;
+
+    // ── Date helpers ──
+    function toLocalISO(date) {
+        const pad = n => String(n).padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function setRange(preset) {
+        document.querySelectorAll('.btn-quick').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+
+        const now   = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        let from, to;
+        if (preset === 'today') {
+            from = today;
+            to   = now;
+        } else if (preset === 'yesterday') {
+            from = new Date(today); from.setDate(from.getDate() - 1);
+            to   = new Date(today); to.setSeconds(to.getSeconds() - 1);
+        } else if (preset === '7days') {
+            from = new Date(today); from.setDate(from.getDate() - 6);
+            to   = now;
+        } else if (preset === 'month') {
+            from = new Date(now.getFullYear(), now.getMonth(), 1);
+            to   = now;
+        }
+
+        document.getElementById('fromInput').value = toLocalISO(from);
+        document.getElementById('toInput').value   = toLocalISO(to);
+    }
+
+    // ── Load data ──
     async function loadHistory() {
+        const fromVal = document.getElementById('fromInput').value;
+        const toVal   = document.getElementById('toInput').value;
+
+        if (!fromVal || !toVal) {
+            showError('Vui lòng chọn khoảng thời gian.');
+            return;
+        }
+
+        const fromISO = new Date(fromVal).toISOString();
+        const toISO   = new Date(toVal).toISOString();
+
+        showLoading();
+        hideError();
+
         try {
-            const res = await fetch('/api/data/history');
+            const url = `/api/data/firebase-history?from=${encodeURIComponent(fromISO)}&to=${encodeURIComponent(toISO)}`;
+            const res = await fetch(url);
+            const body = await res.json();
+
             if (!res.ok) {
-                console.error('Failed to load history', res.status);
-                return;
-            }
-            const data = await res.json();
-            const tbody = document.querySelector('#historyTable tbody');
-            tbody.innerHTML = '';
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="padding:12px; border:1px solid #e2e8f0;">Không có dữ liệu lịch sử</td></tr>';
+                showError(body.error || `Lỗi ${res.status}`);
+                showEmpty();
                 return;
             }
 
-            // data items are expected to be { timestamp: "2026-05-02T12:...Z", temperature: 32.6, humidity: 69.8, deviceId: "temp_007" }
-            data.sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
-
-            for (const item of data) {
-                const dt = new Date(item.timestamp);
-                const dateStr = dt.toLocaleString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' });
-                const timeStr = dt.toLocaleTimeString('vi-VN');
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="padding:8px; border:1px solid #e2e8f0;">${dateStr} ${timeStr}</td>
-                    <td style="padding:8px; border:1px solid #e2e8f0; text-align:right;">${Number(item.temperature).toFixed(1)}</td>
-                    <td style="padding:8px; border:1px solid #e2e8f0; text-align:right;">${Number(item.humidity).toFixed(1)}</td>
-                    <td style="padding:8px; border:1px solid #e2e8f0;">${item.deviceId || '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            }
+            allData = body;
+            updateStats(allData);
+            renderPage(1);
         } catch (err) {
-            console.error('Error loading history', err);
+            showError('Không thể kết nối server: ' + err.message);
+            showEmpty();
         }
     }
 
-    loadHistory();
-    setInterval(loadHistory, 5000);
+    // ── Stats ──
+    function updateStats(data) {
+        document.getElementById('statTotal').textContent = data.length.toLocaleString('vi-VN');
+
+        if (data.length === 0) {
+            ['statAvgTemp','statMinTemp','statMaxTemp','statAvgHum','statHumRange']
+                .forEach(id => document.getElementById(id).textContent = '--');
+            return;
+        }
+
+        const temps = data.map(d => d.temperature);
+        const hums  = data.map(d => d.humidity);
+        const avg   = arr => arr.reduce((a,b) => a+b, 0) / arr.length;
+
+        document.getElementById('statAvgTemp').textContent  = avg(temps).toFixed(1) + '°C';
+        document.getElementById('statMinTemp').textContent  = Math.min(...temps).toFixed(1) + '°C';
+        document.getElementById('statMaxTemp').textContent  = Math.max(...temps).toFixed(1) + '°C';
+        document.getElementById('statAvgHum').textContent   = avg(hums).toFixed(1) + '%';
+        document.getElementById('statHumRange').textContent =
+            Math.min(...hums).toFixed(0) + '% – ' + Math.max(...hums).toFixed(0) + '%';
+    }
+
+    // ── Render table page ──
+    function renderPage(page) {
+        const perPage = parseInt(document.getElementById('perPageSelect').value);
+        curPage = page;
+        const total  = allData.length;
+        const pages  = Math.max(1, Math.ceil(total / perPage));
+        if (curPage > pages) curPage = pages;
+
+        const start = (curPage - 1) * perPage;
+        const slice = allData.slice(start, start + perPage);
+
+        document.getElementById('recordCount').textContent =
+            total.toLocaleString('vi-VN') + ' bản ghi';
+
+        const tbody = document.getElementById('historyBody');
+
+        if (total === 0) {
+            tbody.innerHTML = `<tr class="state-row"><td colspan="5">
+                <div class="empty-icon">🔍</div>
+                <div>Không có dữ liệu trong khoảng thời gian này</div>
+            </td></tr>`;
+            document.getElementById('pageInfo').textContent = '0 bản ghi';
+            document.getElementById('pageBtns').innerHTML = '';
+            return;
+        }
+
+        tbody.innerHTML = slice.map((item, i) => {
+            const dt     = new Date(item.timestamp);
+            const dtStr  = dt.toLocaleString('vi-VN', {
+                year:'numeric', month:'2-digit', day:'2-digit',
+                hour:'2-digit', minute:'2-digit', second:'2-digit'
+            });
+            const t     = Number(item.temperature);
+            const h     = Number(item.humidity);
+            const rowNo = start + i + 1;
+
+            // Temperature colour class
+            let tClass = 'temp-ok';
+            if      (t < 0)   tClass = 'temp-cold';
+            else if (t < 2)   tClass = 'temp-cold';
+            else if (t <= 8)  tClass = 'temp-ok';
+            else if (t <= 12) tClass = 'temp-warn';
+            else              tClass = 'temp-hot';
+
+            return `<tr>
+                <td style="color:#484f58;">${rowNo}</td>
+                <td>${dtStr}</td>
+                <td class="right">
+                    <span class="temp-chip ${tClass}">${t.toFixed(1)} °C</span>
+                </td>
+                <td class="right">
+                    <span class="hum-chip">${h.toFixed(1)} %</span>
+                </td>
+                <td><span class="device-badge">${item.deviceId || '–'}</span></td>
+            </tr>`;
+        }).join('');
+
+        // Pagination info
+        const endRow = Math.min(start + perPage, total);
+        document.getElementById('pageInfo').textContent =
+            `${(start+1).toLocaleString('vi-VN')} – ${endRow.toLocaleString('vi-VN')} / ${total.toLocaleString('vi-VN')} bản ghi`;
+
+        // Page buttons (max 7 shown)
+        buildPageBtns(curPage, pages);
+    }
+
+    function buildPageBtns(cur, total) {
+        const bar = document.getElementById('pageBtns');
+        bar.innerHTML = '';
+
+        const addBtn = (label, page, disabled, isCur) => {
+            const b = document.createElement('button');
+            b.className = 'page-btn' + (isCur ? ' cur' : '');
+            b.textContent = label;
+            b.disabled = disabled;
+            if (!disabled && !isCur) b.onclick = () => renderPage(page);
+            bar.appendChild(b);
+        };
+
+        addBtn('‹', cur - 1, cur === 1, false);
+
+        let start = Math.max(1, cur - 2);
+        let end   = Math.min(total, start + 4);
+        if (end - start < 4) start = Math.max(1, end - 4);
+
+        if (start > 1) { addBtn('1', 1, false, false); if (start > 2) addBtn('…', null, true, false); }
+        for (let p = start; p <= end; p++) addBtn(p, p, false, p === cur);
+        if (end < total) { if (end < total - 1) addBtn('…', null, true, false); addBtn(total, total, false, false); }
+
+        addBtn('›', cur + 1, cur === total, false);
+    }
+
+    // ── State helpers ──
+    function showLoading() {
+        document.getElementById('historyBody').innerHTML =
+            `<tr class="state-row"><td colspan="5">
+                <div class="spinner"></div>
+                <div>Đang tải từ Firebase...</div>
+            </td></tr>`;
+        document.getElementById('recordCount').textContent = '...';
+    }
+
+    function showEmpty() {
+        document.getElementById('historyBody').innerHTML =
+            `<tr class="state-row"><td colspan="5">
+                <div class="empty-icon">📭</div>
+                <div>Không có dữ liệu</div>
+            </td></tr>`;
+        document.getElementById('recordCount').textContent = '0 bản ghi';
+        document.getElementById('pageInfo').textContent = '';
+        document.getElementById('pageBtns').innerHTML = '';
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('errorBanner');
+        el.textContent = '⚠ ' + msg;
+        el.style.display = 'block';
+    }
+
+    function hideError() {
+        document.getElementById('errorBanner').style.display = 'none';
+    }
+
+    // ── Export CSV ──
+    function exportCsv() {
+        if (!allData.length) { alert('Không có dữ liệu để xuất.'); return; }
+
+        const header = 'Thời gian,Nhiệt độ (°C),Độ ẩm (%RH),Thiết bị';
+        const rows   = allData.map(d => {
+            const dt = new Date(d.timestamp).toLocaleString('vi-VN');
+            return `"${dt}",${Number(d.temperature).toFixed(2)},${Number(d.humidity).toFixed(2)},"${d.deviceId || ''}"`;
+        });
+
+        const blob = new Blob(['﻿' + header + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href  = URL.createObjectURL(blob);
+        link.download = `lich-su-${new Date().toISOString().slice(0,10)}.csv`;
+        link.click();
+    }
+
+    // ── Init: default to today ──
+    (function init() {
+        const now   = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        document.getElementById('fromInput').value = toLocalISO(today);
+        document.getElementById('toInput').value   = toLocalISO(now);
+    })();
 </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Dashboard Kho Lạnh";
+    Layout = null;
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -10,340 +10,624 @@
     <title>Dashboard IoT Kho Lạnh</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <style>
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-          font-family: Arial, Helvetica, sans-serif;
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-          background: #f1f5f9;
-          color: #0f172a;
-          padding: 24px;
+            background: #0a0e17;
+            color: #e6edf3;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            padding: 24px 20px;
         }
 
+        /* ── Top nav ── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #0090d4, #005fa3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 12px rgba(0,144,212,0.4);
+        }
+
+        .brand-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: #fff;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .brand-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e6edf3;
+            letter-spacing: 0.3px;
+        }
+
+        .brand-name span {
+            color: #00b4ff;
+        }
+
+        .topbar-nav {
+            display: flex;
+            gap: 6px;
+        }
+
+        .nav-link {
+            color: #8b949e;
+            font-size: 0.88rem;
+            padding: 7px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #e6edf3;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .nav-link.active {
+            color: #00b4ff;
+        }
+
+        .logout-btn {
+            background: rgba(248,81,73,0.12);
+            color: #f85149;
+            border: 1px solid rgba(248,81,73,0.2);
+            font-size: 0.85rem;
+            padding: 7px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(248,81,73,0.2);
+            color: #f85149;
+        }
+
+        /* ── Layout ── */
         .container {
-          max-width: 1280px;
-          margin: 0 auto;
+            max-width: 1280px;
+            margin: 0 auto;
         }
 
+        /* ── Hero ── */
         .hero {
-          background: linear-gradient(135deg, #0891b2, #2563eb);
-          color: white;
-          border-radius: 24px;
-          padding: 24px;
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: space-between;
-          gap: 20px;
-          box-shadow: 0 10px 30px rgba(37, 99, 235, 0.18);
+            background: linear-gradient(135deg, #0f2035 0%, #091525 60%, #0a1220 100%);
+            border: 1px solid rgba(0,144,212,0.18);
+            border-radius: 20px;
+            padding: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 24px;
+            box-shadow: 0 0 40px rgba(0,144,212,0.06), 0 16px 40px rgba(0,0,0,0.5);
+            margin-bottom: 24px;
         }
 
         .hero-left h1 {
-          font-size: 32px;
-          margin-bottom: 8px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #e6edf3;
         }
 
         .hero-left p {
-          color: #e0f2fe;
-          margin-bottom: 18px;
+            color: #7d8590;
+            font-size: 0.9rem;
+            margin-bottom: 18px;
+            max-width: 500px;
+            line-height: 1.6;
         }
 
         .badges {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .badge {
-          background: rgba(255, 255, 255, 0.16);
-          padding: 10px 14px;
-          border-radius: 999px;
-          font-size: 14px;
-          backdrop-filter: blur(8px);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            color: #8b949e;
+            backdrop-filter: blur(8px);
+        }
+
+        .badge strong {
+            color: #e6edf3;
+        }
+
+        .badge.online {
+            border-color: rgba(46,160,67,0.35);
+            background: rgba(46,160,67,0.08);
+            color: #3fb950;
         }
 
         .hero-right {
-          min-width: 300px;
-          display: grid;
-          gap: 12px;
+            min-width: 280px;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .glass-card {
-          background: rgba(255, 255, 255, 0.14);
-          border-radius: 18px;
-          padding: 16px;
-          backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 14px 16px;
         }
 
         .glass-card label {
-          font-size: 14px;
-          display: block;
-          margin-bottom: 8px;
-          color: #e0f2fe;
+            font-size: 0.78rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #7d8590;
+            display: block;
+            margin-bottom: 8px;
         }
 
-        .glass-card input {
-          width: 100%;
-          padding: 12px;
-          border-radius: 12px;
-          border: 1px solid rgba(255, 255, 255, 0.25);
-          background: rgba(255, 255, 255, 0.12);
-          color: white;
-          outline: none;
+        .glass-card input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.06);
+            color: #e6edf3;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        .glass-card input::placeholder {
-          color: #dbeafe;
+        .glass-card input[type="text"]:focus {
+            border-color: rgba(0,144,212,0.5);
+        }
+
+        .glass-card input[type="text"]::placeholder {
+            color: #484f58;
         }
 
         .refresh-box {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
         }
 
-        .btn {
-          border: none;
-          background: white;
-          color: #0f172a;
-          padding: 10px 16px;
-          border-radius: 12px;
-          cursor: pointer;
-          font-weight: bold;
+        .update-label {
+            font-size: 0.78rem;
+            color: #7d8590;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .btn:hover {
-          background: #e2e8f0;
+        .update-time {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #e6edf3;
+            margin-top: 4px;
         }
 
+        .btn-refresh {
+            background: rgba(0,144,212,0.15);
+            border: 1px solid rgba(0,144,212,0.3);
+            color: #00b4ff;
+            padding: 9px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-refresh:hover {
+            background: rgba(0,144,212,0.25);
+            box-shadow: 0 0 12px rgba(0,180,255,0.2);
+        }
+
+        /* ── Stat cards ── */
         .grid {
-          margin-top: 24px;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 18px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
         .card {
-          background: white;
-          border-radius: 22px;
-          padding: 20px;
-          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            background: #111827;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px;
+            padding: 20px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            border-color: rgba(0,180,255,0.18);
+            box-shadow: 0 0 20px rgba(0,180,255,0.05);
         }
 
         .card-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
         }
 
         .muted {
-          color: #64748b;
-          font-size: 14px;
+            color: #7d8590;
+            font-size: 0.82rem;
         }
 
         .value-row {
-          display: flex;
-          align-items: flex-end;
-          gap: 8px;
-          margin: 10px 0 8px;
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            margin: 10px 0 6px;
         }
 
         .value {
-          font-size: 40px;
-          font-weight: bold;
-          line-height: 1;
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1;
+            color: #e6edf3;
         }
 
         .unit {
-          color: #64748b;
-          margin-bottom: 6px;
+            color: #7d8590;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
         }
 
         .icon-box {
-          width: 52px;
-          height: 52px;
-          border-radius: 18px;
-          display: grid;
-          place-items: center;
-          color: white;
-          font-size: 24px;
-          font-weight: bold;
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            flex-shrink: 0;
         }
 
-        .temp-ok { background: #0891b2; }
-        .temp-alert { background: #ef4444; }
-        .hum-ok { background: #2563eb; }
-        .hum-alert { background: #f59e0b; }
+        .temp-ok   { background: rgba(0,144,212,0.15); border: 1px solid rgba(0,144,212,0.3); }
+        .temp-alert { background: rgba(248,81,73,0.15); border: 1px solid rgba(248,81,73,0.3); }
+        .hum-ok    { background: rgba(88,101,242,0.15); border: 1px solid rgba(88,101,242,0.3); }
+        .hum-alert { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); }
 
         .status-line {
-          margin-top: 14px;
-          font-size: 14px;
-          font-weight: 600;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .ok { color: #059669; }
-        .alert { color: #d97706; }
+        .status-line::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
 
+        .ok { color: #3fb950; }
+        .ok::before { background: #3fb950; box-shadow: 0 0 6px #3fb950; }
+        .alert { color: #d29922; }
+        .alert::before { background: #d29922; }
+
+        .info-chip {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-top: 14px;
+        }
+
+        /* ── Content grid ── */
         .content-grid {
-          margin-top: 24px;
-          display: grid;
-          grid-template-columns: 2fr 1fr;
-          gap: 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
         }
 
-        .chart-card,
-        .settings-card,
-        .guide-card {
-          background: white;
-          border-radius: 22px;
-          padding: 20px;
-          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        .chart-card, .settings-card {
+            background: #111827;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px;
+            padding: 22px;
         }
 
-        .chart-card h2,
-        .settings-card h2,
-        .guide-card h2 {
-          font-size: 22px;
-          margin-bottom: 16px;
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e6edf3;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.06);
         }
 
         .chart-wrap {
-          position: relative;
-          width: 100%;
-          height: 360px;
-          background: linear-gradient(to bottom, #f8fafc, #ffffff);
-          border-radius: 18px;
-          border: 1px solid #e2e8f0;
-          padding: 12px;
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: #0a0e17;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 8px;
         }
 
         #chartCanvas {
-          width: 100%;
-          height: 100%;
-          display: block;
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
         .legend {
-          display: flex;
-          gap: 18px;
-          margin-top: 12px;
-          font-size: 14px;
-          color: #475569;
+            display: flex;
+            gap: 20px;
+            margin-top: 12px;
+            font-size: 0.82rem;
+            color: #7d8590;
         }
 
         .legend span {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
         }
 
         .legend i {
-          width: 14px;
-          height: 14px;
-          display: inline-block;
-          border-radius: 99px;
+            width: 22px;
+            height: 3px;
+            display: inline-block;
+            border-radius: 99px;
         }
 
-        .temp-dot { background: #0891b2; }
-        .hum-dot { background: #2563eb; }
+        .temp-dot { background: #00b4ff; }
+        .hum-dot  { background: #a78bfa; }
 
+        /* ── Settings ── */
         .setting-group {
-          margin-bottom: 14px;
+            margin-bottom: 14px;
         }
 
         .setting-group label {
-          display: block;
-          font-size: 14px;
-          font-weight: bold;
-          margin-bottom: 8px;
-          color: #334155;
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #8b949e;
+            margin-bottom: 7px;
         }
 
         .setting-group input {
-          width: 100%;
-          padding: 12px;
-          border-radius: 12px;
-          border: 1px solid #cbd5e1;
-          outline: none;
-          font-size: 15px;
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #0a0e17;
+            color: #e6edf3;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .setting-group input:focus {
+            border-color: rgba(0,144,212,0.5);
+            box-shadow: 0 0 0 3px rgba(0,144,212,0.1);
         }
 
         .note {
-          margin-top: 14px;
-          background: #f8fafc;
-          color: #475569;
-          border-radius: 16px;
-          padding: 14px;
-          font-size: 14px;
-          line-height: 1.6;
+            margin-top: 16px;
+            background: rgba(0,144,212,0.06);
+            border: 1px solid rgba(0,144,212,0.15);
+            color: #7d8590;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 0.82rem;
+            line-height: 1.6;
         }
 
+        .btn-save {
+            width: 100%;
+            margin-top: 16px;
+            padding: 11px;
+            background: linear-gradient(135deg, #0090d4, #005fa3);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: opacity 0.15s, box-shadow 0.15s, transform 0.1s;
+            box-shadow: 0 4px 14px rgba(0,144,212,0.3);
+        }
+
+        .btn-save:hover {
+            opacity: 0.9;
+            box-shadow: 0 6px 18px rgba(0,144,212,0.45);
+            transform: translateY(-1px);
+        }
+
+        .btn-save:active { transform: translateY(0); }
+
+        .btn-telegram-test {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,136,204,0.12);
+            border: 1px solid rgba(0,136,204,0.35);
+            color: #29b6f6;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-telegram-test:hover {
+            background: rgba(0,136,204,0.22);
+            box-shadow: 0 0 12px rgba(0,136,204,0.25);
+        }
+
+        .btn-telegram-test:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .toast-saved {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: #161b22;
+            border: 1px solid rgba(46,160,67,0.4);
+            color: #3fb950;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.25s, transform 0.25s;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .toast-saved.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Guide ── */
         .guide-card {
-          margin-top: 24px;
+            background: #111827;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px;
+            padding: 22px;
         }
 
         .guide-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
         }
 
         .guide-item {
-          background: #f8fafc;
-          border-radius: 18px;
-          padding: 16px;
+            background: #0a0e17;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .guide-item:hover {
+            border-color: rgba(0,180,255,0.2);
         }
 
         .guide-item h3 {
-          margin-bottom: 10px;
-          font-size: 18px;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #00b4ff;
         }
 
         .guide-item p {
-          color: #475569;
-          font-size: 14px;
-          line-height: 1.6;
+            color: #7d8590;
+            font-size: 0.82rem;
+            line-height: 1.6;
         }
 
+        /* ── Responsive ── */
         @@media (max-width: 980px) {
-          .content-grid {
-            grid-template-columns: 1fr;
-          }
+            .content-grid { grid-template-columns: 1fr; }
         }
 
         @@media (max-width: 640px) {
-          body {
-            padding: 14px;
-          }
-
-          .hero-left h1 {
-            font-size: 26px;
-          }
-
-          .value {
-            font-size: 34px;
-          }
-
-          .refresh-box {
-            flex-direction: column;
-            align-items: flex-start;
-          }
+            body { padding: 14px 12px; }
+            .hero-left h1 { font-size: 1.35rem; }
+            .value { font-size: 1.9rem; }
+            .hero-right { max-width: 100%; min-width: 0; width: 100%; }
+            .refresh-box { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+
+        <!-- Topbar -->
+        <nav class="topbar">
+            <a class="topbar-brand" href="/">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </div>
+                <span class="brand-name">ESP32 <span>COLD</span> MONITOR</span>
+            </a>
+            <div class="topbar-nav">
+                <a class="nav-link active" href="/">Dashboard</a>
+                <a class="nav-link" href="/Home/History">Lịch sử</a>
+                <a class="logout-btn" href="/Home/Logout">Đăng xuất</a>
+            </div>
+        </nav>
+
+        <!-- Hero -->
         <section class="hero">
             <div class="hero-left">
                 <h1>❄️ Dashboard IoT Kho Lạnh</h1>
                 <p>Giám sát nhiệt độ và độ ẩm theo thời gian thực cho kho bảo quản lạnh.</p>
                 <div class="badges">
-                    <div class="badge" id="deviceStatus">📶 Thiết bị đang kết nối</div>
-                    <div class="badge">📊 Trạng thái hệ thống: <strong id="overallStatus">Ổn định</strong></div>
+                    <div class="badge online" id="deviceStatus">📶 Thiết bị đang kết nối</div>
+                    <div class="badge">📊 Trạng thái: <strong id="overallStatus">Ổn định</strong></div>
                 </div>
             </div>
 
@@ -352,27 +636,27 @@
                     <label for="warehouseName">Tên kho</label>
                     <input id="warehouseName" type="text" value="Kho lạnh A1" placeholder="Nhập tên kho lạnh" />
                 </div>
-
                 <div class="glass-card refresh-box">
                     <div>
-                        <div style="font-size: 14px; color: #e0f2fe;">Cập nhật cuối</div>
-                        <div id="lastUpdate" style="font-weight: bold; margin-top: 4px;">--:--:--</div>
+                        <div class="update-label">Cập nhật cuối</div>
+                        <div class="update-time" id="lastUpdate">--:--:--</div>
                     </div>
-                    <button class="btn" onclick="refreshData()">Làm mới</button>
+                    <button class="btn-refresh" onclick="refreshData()">↺ Làm mới</button>
                 </div>
             </div>
         </section>
 
+        <!-- Stat cards -->
         <section class="grid">
             <div class="card">
                 <div class="card-top">
                     <div>
                         <div class="muted">Nhiệt độ hiện tại</div>
                         <div class="value-row">
-                            <div class="value" id="temperatureValue">0.0</div>
+                            <div class="value" id="temperatureValue">--</div>
                             <div class="unit">°C</div>
                         </div>
-                        <div class="muted" id="tempRangeText">Ngưỡng cài đặt: 2°C đến 8°C</div>
+                        <div class="muted" id="tempRangeText">Ngưỡng: 2°C – 8°C</div>
                     </div>
                     <div class="icon-box temp-ok" id="tempIcon">🌡️</div>
                 </div>
@@ -384,10 +668,10 @@
                     <div>
                         <div class="muted">Độ ẩm hiện tại</div>
                         <div class="value-row">
-                            <div class="value" id="humidityValue">0.0</div>
+                            <div class="value" id="humidityValue">--</div>
                             <div class="unit">%RH</div>
                         </div>
-                        <div class="muted" id="humRangeText">Ngưỡng cài đặt: 60% đến 85%</div>
+                        <div class="muted" id="humRangeText">Ngưỡng: 60% – 85%</div>
                     </div>
                     <div class="icon-box hum-ok" id="humIcon">💧</div>
                 </div>
@@ -395,21 +679,21 @@
             </div>
 
             <div class="card">
-                <div class="muted">Tên kho đang giám sát</div>
-                <div style="font-size: 28px; font-weight: bold; margin-top: 10px;" id="warehouseNameDisplay">Kho lạnh A1</div>
-                <div style="background: #f1f5f9; border-radius: 16px; padding: 14px; margin-top: 16px;">
-                    <div class="muted">Mã thiết bị</div>
-                    <div style="font-weight: bold; margin-top: 6px;">ESP32-COLD-01</div>
+                <div class="muted">Kho đang giám sát</div>
+                <div style="font-size: 1.6rem; font-weight: 700; margin-top: 10px; color: #e6edf3;" id="warehouseNameDisplay">Kho lạnh A1</div>
+                <div class="info-chip">
+                    <div class="muted" style="margin-bottom:4px;">Mã thiết bị</div>
+                    <div style="font-weight: 600; font-size: 0.95rem;">ESP32-COLD-01</div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="muted">Cảnh báo</div>
-                <div style="display: flex; gap: 12px; align-items: flex-start; margin-top: 12px;">
-                    <div style="font-size: 34px;" id="alertIcon">✅</div>
+                <div class="muted">Trạng thái cảnh báo</div>
+                <div style="display:flex; gap:12px; align-items:flex-start; margin-top:14px;">
+                    <div style="font-size:2rem; line-height:1;" id="alertIcon">✅</div>
                     <div>
-                        <div style="font-size: 26px; font-weight: bold;" id="alertTitle">Ổn định</div>
-                        <div class="muted" id="alertMessage" style="margin-top: 6px; line-height: 1.5;">
+                        <div style="font-size:1.4rem; font-weight:700;" id="alertTitle">Ổn định</div>
+                        <div class="muted" id="alertMessage" style="margin-top:6px; font-size:0.82rem; line-height:1.5;">
                             Thông số kho đang trong mức cho phép.
                         </div>
                     </div>
@@ -417,9 +701,10 @@
             </div>
         </section>
 
+        <!-- Chart + Settings -->
         <section class="content-grid">
             <div class="chart-card">
-                <h2>Biểu đồ thời gian thực</h2>
+                <div class="section-title">Biểu đồ thời gian thực</div>
                 <div class="chart-wrap">
                     <canvas id="chartCanvas"></canvas>
                 </div>
@@ -430,51 +715,48 @@
             </div>
 
             <div class="settings-card">
-                <h2>Cài đặt ngưỡng cảnh báo</h2>
+                <div class="section-title">Ngưỡng cảnh báo</div>
 
                 <div class="setting-group">
                     <label for="minTemp">Nhiệt độ thấp nhất (°C)</label>
                     <input id="minTemp" type="number" value="2" />
                 </div>
-
                 <div class="setting-group">
                     <label for="maxTemp">Nhiệt độ cao nhất (°C)</label>
                     <input id="maxTemp" type="number" value="8" />
                 </div>
-
                 <div class="setting-group">
                     <label for="minHumidity">Độ ẩm thấp nhất (%RH)</label>
                     <input id="minHumidity" type="number" value="60" />
                 </div>
-
                 <div class="setting-group">
                     <label for="maxHumidity">Độ ẩm cao nhất (%RH)</label>
                     <input id="maxHumidity" type="number" value="85" />
                 </div>
 
-                <div class="note">
-                    Gợi ý tích hợp thực tế: thay phần dữ liệu mô phỏng bằng dữ liệu từ MQTT, WebSocket hoặc REST API do ESP32 / backend của bạn gửi lên.
+                <button class="btn-save" onclick="saveThresholds()">💾 Lưu cấu hình</button>
+
+                <!-- Telegram -->
+                <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.07);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                        <div style="font-size:0.82rem; font-weight:600; color:#8b949e; text-transform:uppercase; letter-spacing:0.6px;">
+                            Telegram Alert
+                        </div>
+                        <div id="telegramStatus" style="font-size:0.75rem; padding:3px 10px; border-radius:999px;
+                             background:rgba(255,255,255,0.05); color:#484f58;">
+                            Đang kiểm tra...
+                        </div>
+                    </div>
+                    <button class="btn-telegram-test" id="btnTelegramTest" onclick="testTelegram()">
+                        📨 Gửi tin nhắn test
+                    </button>
                 </div>
+
             </div>
         </section>
 
-        <section class="guide-card">
-            <h2>Hướng dẫn kết nối dữ liệu thật</h2>
-            <div class="guide-grid">
-                <div class="guide-item">
-                    <h3>1. ESP32 gửi dữ liệu</h3>
-                    <p>ESP32 đọc cảm biến DHT22 / SHT20 / SHT31 và gửi JSON gồm: temperature, humidity, deviceId, timestamp.</p>
-                </div>
-                <div class="guide-item">
-                    <h3>2. Backend nhận dữ liệu</h3>
-                    <p>Backend Node.js, C# hoặc Python subscribe MQTT rồi phát lại cho web qua WebSocket, SignalR hoặc REST API.</p>
-                </div>
-                <div class="guide-item">
-                    <h3>3. Website cập nhật realtime</h3>
-                    <p>Thay setInterval bằng WebSocket hoặc fetch API định kỳ để dashboard hiển thị dữ liệu thật từ thiết bị.</p>
-                </div>
-            </div>
-        </section>
+        <div class="toast-saved" id="toastSaved">✔ Đã lưu cấu hình ngưỡng</div>
+
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -483,248 +765,376 @@
         const historyData = [];
         const maxPoints = 18;
 
-        const warehouseNameInput = document.getElementById("warehouseName");
+        const warehouseNameInput  = document.getElementById("warehouseName");
         const warehouseNameDisplay = document.getElementById("warehouseNameDisplay");
-        const temperatureValue = document.getElementById("temperatureValue");
-        const humidityValue = document.getElementById("humidityValue");
-        const tempStatusText = document.getElementById("tempStatusText");
-        const humStatusText = document.getElementById("humStatusText");
-        const tempIcon = document.getElementById("tempIcon");
-        const humIcon = document.getElementById("humIcon");
-        const alertIcon = document.getElementById("alertIcon");
-        const alertTitle = document.getElementById("alertTitle");
-        const alertMessage = document.getElementById("alertMessage");
-        const overallStatus = document.getElementById("overallStatus");
-        const deviceStatus = document.getElementById("deviceStatus");
-        const lastUpdate = document.getElementById("lastUpdate");
-        const tempRangeText = document.getElementById("tempRangeText");
-        const humRangeText = document.getElementById("humRangeText");
+        const temperatureValue    = document.getElementById("temperatureValue");
+        const humidityValue       = document.getElementById("humidityValue");
+        const tempStatusText      = document.getElementById("tempStatusText");
+        const humStatusText       = document.getElementById("humStatusText");
+        const tempIcon            = document.getElementById("tempIcon");
+        const humIcon             = document.getElementById("humIcon");
+        const alertIcon           = document.getElementById("alertIcon");
+        const alertTitle          = document.getElementById("alertTitle");
+        const alertMessage        = document.getElementById("alertMessage");
+        const overallStatus       = document.getElementById("overallStatus");
+        const deviceStatus        = document.getElementById("deviceStatus");
+        const lastUpdate          = document.getElementById("lastUpdate");
+        const tempRangeText       = document.getElementById("tempRangeText");
+        const humRangeText        = document.getElementById("humRangeText");
 
-        const minTempInput = document.getElementById("minTemp");
-        const maxTempInput = document.getElementById("maxTemp");
+        const minTempInput     = document.getElementById("minTemp");
+        const maxTempInput     = document.getElementById("maxTemp");
         const minHumidityInput = document.getElementById("minHumidity");
         const maxHumidityInput = document.getElementById("maxHumidity");
 
         const canvas = document.getElementById("chartCanvas");
         const ctx = canvas.getContext("2d");
 
-        function clamp(value, min, max) {
-          return Math.max(min, Math.min(max, value));
-        }
+        function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
         function formatTime(date) {
-          return date.toLocaleTimeString("vi-VN", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit"
-          });
+            return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
         }
 
         function resizeCanvas() {
-          const rect = canvas.getBoundingClientRect();
-          canvas.width = rect.width * window.devicePixelRatio;
-          canvas.height = rect.height * window.devicePixelRatio;
-          ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
-          drawChart();
+            const rect = canvas.getBoundingClientRect();
+            canvas.width  = rect.width  * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+            drawChart();
         }
 
         function seedData() {
-          historyData.length = 0;
-          let temp = 3.8;
-          let hum = 71;
-          const now = Date.now();
+            historyData.length = 0;
+            let temp = 3.8, hum = 71;
+            const now = Date.now();
+            for (let i = 17; i >= 0; i--) {
+                temp = clamp(temp + (Math.random() - 0.5) * 0.45, -2, 10);
+                hum  = clamp(hum  + (Math.random() - 0.5) * 4,   45, 95);
+                historyData.push({
+                    time: formatTime(new Date(now - i * 3000)),
+                    temperature: Number(temp.toFixed(1)),
+                    humidity:    Number(hum.toFixed(1))
+                });
+            }
+        }
 
-          for (let i = 17; i >= 0; i--) {
-            temp = clamp(temp + (Math.random() - 0.5) * 0.45, -2, 10);
-            hum = clamp(hum + (Math.random() - 0.5) * 4, 45, 95);
+        // Track real connectivity — set true on data arrival, timeout to false after 15s no data
+        let isOnline = true;
+        let lastRealDataTime = 0;
+        let offlineTimer = null;
 
-            historyData.push({
-              time: formatTime(new Date(now - i * 3000)),
-              temperature: Number(temp.toFixed(1)),
-              humidity: Number(hum.toFixed(1))
-            });
-          }
+        function markOnline() {
+            lastRealDataTime = Date.now();
+            if (!isOnline) {
+                isOnline = true;
+                updateDashboard();
+            }
+            clearTimeout(offlineTimer);
+            offlineTimer = setTimeout(() => {
+                isOnline = false;
+                updateDashboard();
+            }, 15000);
         }
 
         function getLimits() {
-          return {
-            minTemp: Number(minTempInput.value),
-            maxTemp: Number(maxTempInput.value),
-            minHumidity: Number(minHumidityInput.value),
-            maxHumidity: Number(maxHumidityInput.value)
-          };
+            return {
+                minTemp:     Number(minTempInput.value),
+                maxTemp:     Number(maxTempInput.value),
+                minHumidity: Number(minHumidityInput.value),
+                maxHumidity: Number(maxHumidityInput.value)
+            };
         }
 
         function updateDashboard() {
-          const current = historyData[historyData.length - 1];
-          const { minTemp, maxTemp, minHumidity, maxHumidity } = getLimits();
-          const tempOk = current.temperature >= minTemp && current.temperature <= maxTemp;
-          const humOk = current.humidity >= minHumidity && current.humidity <= maxHumidity;
-          const online = Math.random() > 0.06;
-          const stable = online && tempOk && humOk;
+            const current = historyData[historyData.length - 1];
+            if (!current) return;
+            const { minTemp, maxTemp, minHumidity, maxHumidity } = getLimits();
 
-          warehouseNameDisplay.textContent = warehouseNameInput.value || "Kho lạnh A1";
-          temperatureValue.textContent = current.temperature.toFixed(1);
-          humidityValue.textContent = current.humidity.toFixed(1);
-          tempRangeText.textContent = `Ngưỡng cài đặt: ${minTemp}°C đến ${maxTemp}°C`;
-          humRangeText.textContent = `Ngưỡng cài đặt: ${minHumidity}% đến ${maxHumidity}%`;
-          lastUpdate.textContent = formatTime(new Date());
+            const tempOk = current.temperature >= minTemp && current.temperature <= maxTemp;
+            const humOk  = current.humidity    >= minHumidity && current.humidity <= maxHumidity;
+            const stable = isOnline && tempOk && humOk;
 
-          tempStatusText.textContent = tempOk ? "Trong ngưỡng an toàn" : "Cần kiểm tra ngay";
-          humStatusText.textContent = humOk ? "Trong ngưỡng an toàn" : "Cần kiểm tra ngay";
-          tempStatusText.className = `status-line ${tempOk ? "ok" : "alert"}`;
-          humStatusText.className = `status-line ${humOk ? "ok" : "alert"}`;
-          tempIcon.className = `icon-box ${tempOk ? "temp-ok" : "temp-alert"}`;
-          humIcon.className = `icon-box ${humOk ? "hum-ok" : "hum-alert"}`;
+            warehouseNameDisplay.textContent  = warehouseNameInput.value || "Kho lạnh A1";
+            temperatureValue.textContent      = current.temperature.toFixed(1);
+            humidityValue.textContent         = current.humidity.toFixed(1);
+            tempRangeText.textContent         = `Ngưỡng: ${minTemp}°C – ${maxTemp}°C`;
+            humRangeText.textContent          = `Ngưỡng: ${minHumidity}% – ${maxHumidity}%`;
+            lastUpdate.textContent            = formatTime(new Date());
 
-          deviceStatus.textContent = online ? "📶 Thiết bị đang kết nối" : "📴 Mất kết nối thiết bị";
-          overallStatus.textContent = stable ? "Ổn định" : "Cảnh báo";
-          alertIcon.textContent = stable ? "✅" : "⚠️";
-          alertTitle.textContent = stable ? "Ổn định" : "Cảnh báo";
-          alertMessage.textContent = stable
-            ? "Thông số kho đang trong mức cho phép."
-            : "Có ít nhất một thông số vượt ngưỡng hoặc thiết bị mất kết nối.";
+            tempStatusText.textContent = tempOk ? "Trong ngưỡng an toàn" : "Cần kiểm tra ngay";
+            humStatusText.textContent  = humOk  ? "Trong ngưỡng an toàn" : "Cần kiểm tra ngay";
+            tempStatusText.className   = `status-line ${tempOk ? "ok" : "alert"}`;
+            humStatusText.className    = `status-line ${humOk  ? "ok" : "alert"}`;
+            tempIcon.className         = `icon-box ${tempOk ? "temp-ok" : "temp-alert"}`;
+            humIcon.className          = `icon-box ${humOk  ? "hum-ok"  : "hum-alert"}`;
 
-          drawChart();
+            deviceStatus.textContent   = isOnline ? "📶 Thiết bị đang kết nối" : "📴 Mất kết nối thiết bị";
+            deviceStatus.className     = isOnline ? "badge online" : "badge";
+            overallStatus.textContent  = stable ? "Ổn định" : "Cảnh báo";
+            alertIcon.textContent      = stable ? "✅" : "⚠️";
+            alertTitle.textContent     = stable ? "Ổn định" : "Cảnh báo";
+            alertMessage.textContent   = stable
+                ? "Thông số kho đang trong mức cho phép."
+                : !isOnline
+                    ? "Mất kết nối thiết bị — kiểm tra nguồn và mạng ESP32."
+                    : !tempOk
+                        ? `Nhiệt độ ${current.temperature.toFixed(1)}°C vượt ngưỡng [${minTemp}–${maxTemp}°C].`
+                        : `Độ ẩm ${current.humidity.toFixed(1)}%RH vượt ngưỡng [${minHumidity}–${maxHumidity}%].`;
+
+            drawChart();
         }
 
-        function drawAxes(width, height, padding) {
-          ctx.strokeStyle = "#cbd5e1";
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(padding.left, padding.top);
-          ctx.lineTo(padding.left, height - padding.bottom);
-          ctx.lineTo(width - padding.right, height - padding.bottom);
-          ctx.stroke();
-        }
-
-        function drawGrid(width, height, padding) {
-          const lines = 5;
-          ctx.strokeStyle = "#e2e8f0";
-          ctx.lineWidth = 1;
-          for (let i = 0; i <= lines; i++) {
-            const y = padding.top + ((height - padding.top - padding.bottom) / lines) * i;
+        function drawAxes(W, H, p) {
+            ctx.strokeStyle = "rgba(255,255,255,0.12)";
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.moveTo(padding.left, y);
-            ctx.lineTo(width - padding.right, y);
+            ctx.moveTo(p.left, p.top);
+            ctx.lineTo(p.left, H - p.bottom);
+            ctx.lineTo(W - p.right, H - p.bottom);
             ctx.stroke();
-          }
         }
 
-        function drawLine(data, key, color, minValue, maxValue, width, height, padding) {
-          const chartWidth = width - padding.left - padding.right;
-          const chartHeight = height - padding.top - padding.bottom;
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-
-          data.forEach((item, index) => {
-            const x = padding.left + (chartWidth / (data.length - 1 || 1)) * index;
-            const value = item[key];
-            const normalized = (value - minValue) / (maxValue - minValue || 1);
-            const y = padding.top + chartHeight - normalized * chartHeight;
-            if (index === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-          });
-
-          ctx.stroke();
-        }
-
-        function drawLabels(data, width, height, padding) {
-          ctx.fillStyle = "#64748b";
-          ctx.font = "12px Arial";
-
-          const step = Math.max(1, Math.floor(data.length / 6));
-          data.forEach((item, index) => {
-            if (index % step === 0 || index === data.length - 1) {
-              const chartWidth = width - padding.left - padding.right;
-              const x = padding.left + (chartWidth / (data.length - 1 || 1)) * index;
-              ctx.fillText(item.time, x - 18, height - 12);
+        function drawGrid(W, H, p) {
+            const lines = 5;
+            ctx.strokeStyle = "rgba(255,255,255,0.05)";
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= lines; i++) {
+                const y = p.top + ((H - p.top - p.bottom) / lines) * i;
+                ctx.beginPath();
+                ctx.moveTo(p.left, y);
+                ctx.lineTo(W - p.right, y);
+                ctx.stroke();
             }
-          });
+        }
+
+        function drawLine(data, key, color, minValue, maxValue, W, H, p) {
+            const cW = W - p.left - p.right;
+            const cH = H - p.top  - p.bottom;
+
+            // gradient fill under line
+            const grad = ctx.createLinearGradient(0, p.top, 0, H - p.bottom);
+            grad.addColorStop(0,   color.replace(')', ', 0.18)').replace('rgb', 'rgba'));
+            grad.addColorStop(1,   color.replace(')', ', 0)').replace('rgb', 'rgba'));
+
+            ctx.beginPath();
+            data.forEach((item, i) => {
+                const x = p.left + (cW / (data.length - 1 || 1)) * i;
+                const normalized = (item[key] - minValue) / (maxValue - minValue || 1);
+                const y = p.top + cH - normalized * cH;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+
+            const lastItem  = data[data.length - 1];
+            const lastX = p.left + cW;
+            const lastNorm = (lastItem[key] - minValue) / (maxValue - minValue || 1);
+            const lastY = p.top + cH - lastNorm * cH;
+            ctx.lineTo(lastX, H - p.bottom);
+            ctx.lineTo(p.left, H - p.bottom);
+            ctx.closePath();
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // main line
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 6;
+            ctx.beginPath();
+            data.forEach((item, i) => {
+                const x = p.left + (cW / (data.length - 1 || 1)) * i;
+                const normalized = (item[key] - minValue) / (maxValue - minValue || 1);
+                const y = p.top + cH - normalized * cH;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+
+        function drawLabels(data, W, H, p) {
+            ctx.fillStyle = "#4b5563";
+            ctx.font = "11px 'Segoe UI', sans-serif";
+            const step = Math.max(1, Math.floor(data.length / 5));
+            const cW = W - p.left - p.right;
+            data.forEach((item, i) => {
+                if (i % step === 0 || i === data.length - 1) {
+                    const x = p.left + (cW / (data.length - 1 || 1)) * i;
+                    ctx.fillText(item.time, x - 16, H - 8);
+                }
+            });
         }
 
         function drawChart() {
-          const rect = canvas.getBoundingClientRect();
-          const width = rect.width;
-          const height = rect.height;
-          ctx.clearRect(0, 0, width, height);
-
-          if (!historyData.length) return;
-
-          const padding = { top: 20, right: 20, bottom: 40, left: 40 };
-          drawGrid(width, height, padding);
-          drawAxes(width, height, padding);
-          drawLine(historyData, "temperature", "#0891b2", -2, 10, width, height, padding);
-          drawLine(historyData, "humidity", "#2563eb", 40, 100, width, height, padding);
-          drawLabels(historyData, width, height, padding);
+            const rect = canvas.getBoundingClientRect();
+            const W = rect.width, H = rect.height;
+            ctx.clearRect(0, 0, W, H);
+            if (!historyData.length) return;
+            const p = { top: 16, right: 16, bottom: 36, left: 36 };
+            drawGrid(W, H, p);
+            drawAxes(W, H, p);
+            drawLine(historyData, "temperature", "#00b4ff", -2, 10, W, H, p);
+            drawLine(historyData, "humidity",    "#a78bfa", 40, 100, W, H, p);
+            drawLabels(historyData, W, H, p);
         }
 
+        function pushReading(temperature, humidity) {
+            historyData.push({
+                time:        formatTime(new Date()),
+                temperature: Number(Number(temperature).toFixed(1)),
+                humidity:    Number(Number(humidity).toFixed(1))
+            });
+            if (historyData.length > maxPoints) historyData.shift();
+            markOnline();
+            updateDashboard();
+        }
+
+        // Simulation fallback — only runs when no real data received in the last 10s
         function generateNextData() {
-          const last = historyData[historyData.length - 1] || { temperature: 3.8, humidity: 71 };
-          const nextTemp = clamp(last.temperature + (Math.random() - 0.5) * 0.6, -2, 10);
-          const nextHumidity = clamp(last.humidity + (Math.random() - 0.5) * 5, 45, 95);
-
-          historyData.push({
-            time: formatTime(new Date()),
-            temperature: Number(nextTemp.toFixed(1)),
-            humidity: Number(nextHumidity.toFixed(1))
-          });
-
-          if (historyData.length > maxPoints) {
-            historyData.shift();
-          }
-
-          updateDashboard();
+            if (Date.now() - lastRealDataTime < 10000) return;
+            const last = historyData[historyData.length - 1] || { temperature: 3.8, humidity: 71 };
+            const nextTemp     = clamp(last.temperature + (Math.random() - 0.5) * 0.6, -2, 10);
+            const nextHumidity = clamp(last.humidity    + (Math.random() - 0.5) * 5,   45, 95);
+            historyData.push({
+                time:        formatTime(new Date()),
+                temperature: Number(nextTemp.toFixed(1)),
+                humidity:    Number(nextHumidity.toFixed(1))
+            });
+            if (historyData.length > maxPoints) historyData.shift();
+            updateDashboard();
         }
 
         function refreshData() {
-          seedData();
-          updateDashboard();
+            seedData();
+            updateDashboard();
         }
 
         warehouseNameInput.addEventListener("input", () => {
-          warehouseNameDisplay.textContent = warehouseNameInput.value || "Kho lạnh A1";
+            warehouseNameDisplay.textContent = warehouseNameInput.value || "Kho lạnh A1";
         });
 
-        [minTempInput, maxTempInput, minHumidityInput, maxHumidityInput].forEach((input) => {
-          input.addEventListener("input", updateDashboard);
+        [minTempInput, maxTempInput, minHumidityInput, maxHumidityInput].forEach(input => {
+            input.addEventListener("input", updateDashboard);
         });
 
         window.addEventListener("resize", resizeCanvas);
 
+        // ── localStorage: load saved thresholds ──
+        const STORAGE_KEY = "cold_monitor_thresholds";
+
+        function loadThresholds() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                if (!saved) return;
+                if (saved.minTemp     !== undefined) minTempInput.value     = saved.minTemp;
+                if (saved.maxTemp     !== undefined) maxTempInput.value     = saved.maxTemp;
+                if (saved.minHumidity !== undefined) minHumidityInput.value = saved.minHumidity;
+                if (saved.maxHumidity !== undefined) maxHumidityInput.value = saved.maxHumidity;
+                if (saved.warehouseName) {
+                    warehouseNameInput.value = saved.warehouseName;
+                    warehouseNameDisplay.textContent = saved.warehouseName;
+                }
+            } catch (e) { /* ignore malformed data */ }
+        }
+
+        let toastTimer = null;
+
+        async function saveThresholds() {
+            const { minTemp, maxTemp, minHumidity, maxHumidity } = getLimits();
+
+            if (minTemp >= maxTemp) {
+                alert("Nhiệt độ thấp nhất phải nhỏ hơn nhiệt độ cao nhất.");
+                return;
+            }
+            if (minHumidity >= maxHumidity) {
+                alert("Độ ẩm thấp nhất phải nhỏ hơn độ ẩm cao nhất.");
+                return;
+            }
+
+            // Lưu localStorage
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                minTemp, maxTemp, minHumidity, maxHumidity,
+                warehouseName: warehouseNameInput.value
+            }));
+
+            // Đồng bộ lên backend để Telegram alert dùng đúng ngưỡng
+            try {
+                await fetch('/api/settings/thresholds', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ minTemp, maxTemp, minHumidity, maxHumidity })
+                });
+            } catch (_) { /* offline thì bỏ qua */ }
+
+            updateDashboard();
+
+            const toast = document.getElementById("toastSaved");
+            toast.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove("show"), 2500);
+        }
+
+        // ── Telegram ──
+        async function checkTelegramStatus() {
+            try {
+                const res  = await fetch('/api/settings/telegram-status');
+                const data = await res.json();
+                const el   = document.getElementById('telegramStatus');
+                const btn  = document.getElementById('btnTelegramTest');
+                if (data.configured) {
+                    el.textContent = '✔ Đã cấu hình';
+                    el.style.background = 'rgba(46,160,67,0.12)';
+                    el.style.color = '#3fb950';
+                    btn.disabled = false;
+                } else {
+                    el.textContent = '✘ Chưa cấu hình';
+                    el.style.background = 'rgba(248,81,73,0.1)';
+                    el.style.color = '#f85149';
+                    btn.disabled = true;
+                }
+            } catch (_) {}
+        }
+
+        async function testTelegram() {
+            const btn = document.getElementById('btnTelegramTest');
+            btn.disabled = true;
+            btn.textContent = '⏳ Đang gửi...';
+            try {
+                const res  = await fetch('/api/settings/telegram-test', { method: 'POST' });
+                const data = await res.json();
+                btn.textContent = res.ok ? '✔ Đã gửi!' : '✘ Lỗi';
+                setTimeout(() => { btn.textContent = '📨 Gửi tin nhắn test'; btn.disabled = false; }, 2500);
+            } catch (_) {
+                btn.textContent = '✘ Lỗi kết nối';
+                setTimeout(() => { btn.textContent = '📨 Gửi tin nhắn test'; btn.disabled = false; }, 2500);
+            }
+        }
+
+        loadThresholds();
+        checkTelegramStatus();
         seedData();
         setTimeout(resizeCanvas, 50);
         updateDashboard();
+        setInterval(generateNextData, 3000);
 
-                async function fetchData() {
+        // ── REST API polling ──
+        async function fetchData() {
             try {
-                // call the Web API endpoint exposed by DataController
                 const res = await fetch('/api/data');
-                if (res.ok) {
-                    const data = await res.json();
-
-                    // MQTT payload may be nested like: { device: {...}, data: { temperature: 32.6, humidity: 69.8 }, ... }
-                    // Normalize to the inner sensor object if present
-                    const sensor = (data && data.data) ? data.data : data;
-
-                    // update dashboard elements if values exist
-                    if (sensor) {
-                        if (sensor.temperature !== undefined && sensor.temperature !== null) {
-                            temperatureValue.textContent = Number(sensor.temperature).toFixed(1);
-                        }
-                        if (sensor.humidity !== undefined && sensor.humidity !== null) {
-                            humidityValue.textContent = Number(sensor.humidity).toFixed(1);
-                        }
-                        lastUpdate.textContent = formatTime(new Date());
-                    }
+                if (!res.ok) return;
+                const data = await res.json();
+                const sensor = (data && data.data) ? data.data : data;
+                if (!sensor) return;
+                const t = sensor.temperature;
+                const h = sensor.humidity;
+                if (t !== undefined && t !== null && h !== undefined && h !== null) {
+                    pushReading(t, h);
                 }
             } catch (err) {
                 console.error("Fetch error:", err);
             }
         }
 
-        // SignalR connection
+        // ── SignalR ──
         const connection = new signalR.HubConnectionBuilder()
             .withUrl('/mqttHub')
             .withAutomaticReconnect()
@@ -732,13 +1142,10 @@
 
         connection.on('ReceiveReading', (reading) => {
             try {
-                const ts = new Date(reading.timestamp);
-                lastUpdate.textContent = ts.toLocaleTimeString('vi-VN');
-                if (reading.temperature !== undefined) {
-                    temperatureValue.textContent = Number(reading.temperature).toFixed(1);
-                }
-                if (reading.humidity !== undefined) {
-                    humidityValue.textContent = Number(reading.humidity).toFixed(1);
+                const t = reading.temperature;
+                const h = reading.humidity;
+                if (t !== undefined && h !== undefined) {
+                    pushReading(t, h);
                 }
             } catch (err) {
                 console.error('Invalid reading', err);
@@ -746,10 +1153,8 @@
         });
 
         connection.start().catch(err => console.error(err.toString()));
-
         setInterval(fetchData, 3000);
-        fetchData(); // chạy ngay lần đầu
+        fetchData();
     </script>
-
 </body>
 </html>

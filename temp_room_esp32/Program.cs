@@ -12,6 +12,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddSingleton<MqttDataService>();
 
+// Firebase + HttpClient
+builder.Services.AddHttpClient("firebase");
+builder.Services.AddSingleton<FirebaseService>();
+
+// Telegram alert service
+builder.Services.AddSingleton<TelegramService>();
+
 // SignalR
 builder.Services.AddSignalR();
 

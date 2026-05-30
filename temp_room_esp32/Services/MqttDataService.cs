@@ -15,12 +15,15 @@ public class MqttDataService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<MqttHub> _hubContext;
     private readonly ILogger<MqttDataService> _logger;
+    private readonly TelegramService _telegram;
 
-    public MqttDataService(IServiceScopeFactory scopeFactory, IHubContext<MqttHub> hubContext, ILogger<MqttDataService> logger)
+    public MqttDataService(IServiceScopeFactory scopeFactory, IHubContext<MqttHub> hubContext,
+        ILogger<MqttDataService> logger, TelegramService telegram)
     {
         _scopeFactory = scopeFactory;
-        _hubContext = hubContext;
-        _logger = logger;
+        _hubContext   = hubContext;
+        _logger       = logger;
+        _telegram     = telegram;
     }
 
     private object? _latestData;
@@ -164,6 +167,9 @@ public class MqttDataService
                     {
                         _logger.LogError(ex, "Error saving to DB or pushing to SignalR");
                     }
+
+                    // kiểm tra ngưỡng & gửi Telegram nếu cần (fire-and-forget)
+                    _ = _telegram.CheckAndAlertAsync(reading.Temperature, reading.Humidity, reading.DeviceId);
 
                     _latestData = reading;
                 }

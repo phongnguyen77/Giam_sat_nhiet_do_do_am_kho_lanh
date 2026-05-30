@@ -11,12 +11,79 @@
   },
   {
     "ContainingType": "DataController",
+    "Method": "GetFirebaseHistory",
+    "RelativePath": "api/Data/firebase-history",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "from",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "to",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DataController",
     "Method": "GetHistory",
     "RelativePath": "api/Data/history",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SettingsController",
+    "Method": "TelegramStatus",
+    "RelativePath": "api/Settings/telegram-status",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SettingsController",
+    "Method": "TelegramTest",
+    "RelativePath": "api/Settings/telegram-test",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SettingsController",
+    "Method": "GetThresholds",
+    "RelativePath": "api/Settings/thresholds",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "SettingsController",
+    "Method": "SetThresholds",
+    "RelativePath": "api/Settings/thresholds",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "SettingsController\u002BThresholdDto",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   }
 ]
