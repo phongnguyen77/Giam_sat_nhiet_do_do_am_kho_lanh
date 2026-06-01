@@ -1,0 +1,18 @@
+# Build outputs
+bin/
+obj/
+
+# IDE
+.vs/
+*.user
+.vscode/
+
+# Firebase service account - KHÔNG commit key này lên git
+*firebase-adminsdk*.json
+firebase-service-account.json
+
+# Dotnet
+*.suo
+*.ntvs*
+*.njsproj
+*.sln.docstates
