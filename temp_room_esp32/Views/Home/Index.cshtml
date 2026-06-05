@@ -348,6 +348,8 @@
         .ok::before { background: #3fb950; box-shadow: 0 0 6px #3fb950; }
         .alert { color: #d29922; }
         .alert::before { background: #d29922; }
+        .waiting { color: #484f58; }
+        .waiting::before { background: #484f58; }
 
         .info-chip {
             background: rgba(255,255,255,0.04);
@@ -820,7 +822,8 @@
         }
 
         // Track real connectivity — set true on data arrival, timeout to false after 15s no data
-        let isOnline = true;
+        let isOnline = false;
+        let hasRealData = false;        // chỉ true khi ESP32 gửi dữ liệu thật
         let lastRealDataTime = 0;
         let offlineTimer = null;
 
@@ -855,21 +858,29 @@
             const humOk  = current.humidity    >= minHumidity && current.humidity <= maxHumidity;
             const stable = isOnline && tempOk && humOk;
 
-            warehouseNameDisplay.textContent  = warehouseNameInput.value || "Kho lạnh A1";
-            temperatureValue.textContent      = current.temperature.toFixed(1);
-            humidityValue.textContent         = current.humidity.toFixed(1);
-            tempRangeText.textContent         = `Ngưỡng: ${minTemp}°C – ${maxTemp}°C`;
-            humRangeText.textContent          = `Ngưỡng: ${minHumidity}% – ${maxHumidity}%`;
-            lastUpdate.textContent            = formatTime(new Date());
+            warehouseNameDisplay.textContent = warehouseNameInput.value || "Kho lạnh A1";
+            tempRangeText.textContent        = `Ngưỡng: ${minTemp}°C – ${maxTemp}°C`;
+            humRangeText.textContent         = `Ngưỡng: ${minHumidity}% – ${maxHumidity}%`;
 
-            tempStatusText.textContent = tempOk ? "Trong ngưỡng an toàn" : "Cần kiểm tra ngay";
-            humStatusText.textContent  = humOk  ? "Trong ngưỡng an toàn" : "Cần kiểm tra ngay";
-            tempStatusText.className   = `status-line ${tempOk ? "ok" : "alert"}`;
-            humStatusText.className    = `status-line ${humOk  ? "ok" : "alert"}`;
-            tempIcon.className         = `icon-box ${tempOk ? "temp-ok" : "temp-alert"}`;
-            humIcon.className          = `icon-box ${humOk  ? "hum-ok"  : "hum-alert"}`;
+            // Chỉ hiển thị giá trị thật khi đã nhận được dữ liệu từ ESP32
+            if (hasRealData) {
+                temperatureValue.textContent = current.temperature.toFixed(1);
+                humidityValue.textContent    = current.humidity.toFixed(1);
+                lastUpdate.textContent       = formatTime(new Date());
+            } else {
+                temperatureValue.textContent = '--';
+                humidityValue.textContent    = '--';
+                lastUpdate.textContent       = '--:--:--';
+            }
 
-            deviceStatus.textContent   = isOnline ? "📶 Thiết bị đang kết nối" : "📴 Mất kết nối thiết bị";
+            tempStatusText.textContent = hasRealData ? (tempOk ? "Trong ngưỡng an toàn" : "Cần kiểm tra ngay") : "Chờ dữ liệu ESP32...";
+            humStatusText.textContent  = hasRealData ? (humOk  ? "Trong ngưỡng an toàn" : "Cần kiểm tra ngay") : "Chờ dữ liệu ESP32...";
+            tempStatusText.className   = `status-line ${hasRealData ? (tempOk ? "ok" : "alert") : "waiting"}`;
+            humStatusText.className    = `status-line ${hasRealData ? (humOk  ? "ok" : "alert") : "waiting"}`;
+            tempIcon.className         = `icon-box ${hasRealData ? (tempOk ? "temp-ok" : "temp-alert") : "temp-ok"}`;
+            humIcon.className          = `icon-box ${hasRealData ? (humOk  ? "hum-ok"  : "hum-alert") : "hum-ok"}`;
+
+            deviceStatus.textContent   = isOnline ? "📶 Thiết bị đang kết nối" : "📴 Chờ kết nối ESP32...";
             deviceStatus.className     = isOnline ? "badge online" : "badge";
             overallStatus.textContent  = stable ? "Ổn định" : "Cảnh báo";
             alertIcon.textContent      = stable ? "✅" : "⚠️";
@@ -984,6 +995,7 @@
                 humidity:    Number(Number(humidity).toFixed(1))
             });
             if (historyData.length > maxPoints) historyData.shift();
+            hasRealData = true;
             markOnline();
             updateDashboard();
         }
