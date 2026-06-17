@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\temp_room_esp32.props" />
-</Project>

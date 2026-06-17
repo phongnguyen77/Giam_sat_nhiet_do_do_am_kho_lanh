@@ -394,14 +394,22 @@
         .chart-wrap {
             position: relative;
             width: 100%;
-            height: 300px;
+            height: 220px;
             background: #0a0e17;
             border-radius: 12px;
             border: 1px solid rgba(255,255,255,0.05);
             padding: 8px;
         }
 
-        #chartCanvas {
+        .chart-block {
+            margin-bottom: 18px;
+        }
+
+        .chart-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .chart-block canvas {
             width: 100%;
             height: 100%;
             display: block;
@@ -706,13 +714,23 @@
         <!-- Chart + Settings -->
         <section class="content-grid">
             <div class="chart-card">
-                <div class="section-title">Biểu đồ thời gian thực</div>
-                <div class="chart-wrap">
-                    <canvas id="chartCanvas"></canvas>
+                <div class="chart-block">
+                    <div class="section-title">Biểu đồ nhiệt độ</div>
+                    <div class="chart-wrap">
+                        <canvas id="chartCanvasTemp"></canvas>
+                    </div>
+                    <div class="legend">
+                        <span><i class="temp-dot"></i> Nhiệt độ (°C)</span>
+                    </div>
                 </div>
-                <div class="legend">
-                    <span><i class="temp-dot"></i> Nhiệt độ (°C)</span>
-                    <span><i class="hum-dot"></i> Độ ẩm (%RH)</span>
+                <div class="chart-block">
+                    <div class="section-title">Biểu đồ độ ẩm</div>
+                    <div class="chart-wrap">
+                        <canvas id="chartCanvasHum"></canvas>
+                    </div>
+                    <div class="legend">
+                        <span><i class="hum-dot"></i> Độ ẩm (%RH)</span>
+                    </div>
                 </div>
             </div>
 
@@ -763,6 +781,7 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.11/signalr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script>
         const historyData = [];
         const maxPoints = 18;
@@ -789,21 +808,70 @@
         const minHumidityInput = document.getElementById("minHumidity");
         const maxHumidityInput = document.getElementById("maxHumidity");
 
-        const canvas = document.getElementById("chartCanvas");
-        const ctx = canvas.getContext("2d");
-
         function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 
         function formatTime(date) {
             return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
         }
 
-        function resizeCanvas() {
-            const rect = canvas.getBoundingClientRect();
-            canvas.width  = rect.width  * window.devicePixelRatio;
-            canvas.height = rect.height * window.devicePixelRatio;
-            ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
-            drawChart();
+        function createLineChart(canvasId, label, color, suggestedMin, suggestedMax) {
+            const ctx = document.getElementById(canvasId).getContext("2d");
+            const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+            gradient.addColorStop(0, color.replace(')', ', 0.25)').replace('rgb', 'rgba'));
+            gradient.addColorStop(1, color.replace(')', ', 0)').replace('rgb', 'rgba'));
+
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label,
+                        data: [],
+                        borderColor: color,
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        borderWidth: 2.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 250 },
+                    interaction: { intersect: false, mode: 'index' },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#4b5563', font: { size: 11 }, maxRotation: 0, autoSkip: true }
+                        },
+                        y: {
+                            suggestedMin,
+                            suggestedMax,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#4b5563', font: { size: 11 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        const tempChart = createLineChart("chartCanvasTemp", "Nhiệt độ (°C)", "#00b4ff", -2, 10);
+        const humChart  = createLineChart("chartCanvasHum",  "Độ ẩm (%RH)",   "#a78bfa", 40, 100);
+
+        function updateCharts() {
+            const labels = historyData.map(item => item.time);
+            tempChart.data.labels = labels;
+            tempChart.data.datasets[0].data = historyData.map(item => item.temperature);
+            tempChart.update();
+
+            humChart.data.labels = labels;
+            humChart.data.datasets[0].data = historyData.map(item => item.humidity);
+            humChart.update();
         }
 
         function seedData() {
@@ -893,99 +961,7 @@
                         ? `Nhiệt độ ${current.temperature.toFixed(1)}°C vượt ngưỡng [${minTemp}–${maxTemp}°C].`
                         : `Độ ẩm ${current.humidity.toFixed(1)}%RH vượt ngưỡng [${minHumidity}–${maxHumidity}%].`;
 
-            drawChart();
-        }
-
-        function drawAxes(W, H, p) {
-            ctx.strokeStyle = "rgba(255,255,255,0.12)";
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(p.left, p.top);
-            ctx.lineTo(p.left, H - p.bottom);
-            ctx.lineTo(W - p.right, H - p.bottom);
-            ctx.stroke();
-        }
-
-        function drawGrid(W, H, p) {
-            const lines = 5;
-            ctx.strokeStyle = "rgba(255,255,255,0.05)";
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= lines; i++) {
-                const y = p.top + ((H - p.top - p.bottom) / lines) * i;
-                ctx.beginPath();
-                ctx.moveTo(p.left, y);
-                ctx.lineTo(W - p.right, y);
-                ctx.stroke();
-            }
-        }
-
-        function drawLine(data, key, color, minValue, maxValue, W, H, p) {
-            const cW = W - p.left - p.right;
-            const cH = H - p.top  - p.bottom;
-
-            // gradient fill under line
-            const grad = ctx.createLinearGradient(0, p.top, 0, H - p.bottom);
-            grad.addColorStop(0,   color.replace(')', ', 0.18)').replace('rgb', 'rgba'));
-            grad.addColorStop(1,   color.replace(')', ', 0)').replace('rgb', 'rgba'));
-
-            ctx.beginPath();
-            data.forEach((item, i) => {
-                const x = p.left + (cW / (data.length - 1 || 1)) * i;
-                const normalized = (item[key] - minValue) / (maxValue - minValue || 1);
-                const y = p.top + cH - normalized * cH;
-                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            });
-
-            const lastItem  = data[data.length - 1];
-            const lastX = p.left + cW;
-            const lastNorm = (lastItem[key] - minValue) / (maxValue - minValue || 1);
-            const lastY = p.top + cH - lastNorm * cH;
-            ctx.lineTo(lastX, H - p.bottom);
-            ctx.lineTo(p.left, H - p.bottom);
-            ctx.closePath();
-            ctx.fillStyle = grad;
-            ctx.fill();
-
-            // main line
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2.5;
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 6;
-            ctx.beginPath();
-            data.forEach((item, i) => {
-                const x = p.left + (cW / (data.length - 1 || 1)) * i;
-                const normalized = (item[key] - minValue) / (maxValue - minValue || 1);
-                const y = p.top + cH - normalized * cH;
-                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-        }
-
-        function drawLabels(data, W, H, p) {
-            ctx.fillStyle = "#4b5563";
-            ctx.font = "11px 'Segoe UI', sans-serif";
-            const step = Math.max(1, Math.floor(data.length / 5));
-            const cW = W - p.left - p.right;
-            data.forEach((item, i) => {
-                if (i % step === 0 || i === data.length - 1) {
-                    const x = p.left + (cW / (data.length - 1 || 1)) * i;
-                    ctx.fillText(item.time, x - 16, H - 8);
-                }
-            });
-        }
-
-        function drawChart() {
-            const rect = canvas.getBoundingClientRect();
-            const W = rect.width, H = rect.height;
-            ctx.clearRect(0, 0, W, H);
-            if (!historyData.length) return;
-            const p = { top: 16, right: 16, bottom: 36, left: 36 };
-            drawGrid(W, H, p);
-            drawAxes(W, H, p);
-            drawLine(historyData, "temperature", "#00b4ff", -2, 10, W, H, p);
-            drawLine(historyData, "humidity",    "#a78bfa", 40, 100, W, H, p);
-            drawLabels(historyData, W, H, p);
+            updateCharts();
         }
 
         function pushReading(temperature, humidity) {
@@ -1027,8 +1003,6 @@
         [minTempInput, maxTempInput, minHumidityInput, maxHumidityInput].forEach(input => {
             input.addEventListener("input", updateDashboard);
         });
-
-        window.addEventListener("resize", resizeCanvas);
 
         // ── localStorage: load saved thresholds ──
         const STORAGE_KEY = "cold_monitor_thresholds";
@@ -1124,7 +1098,6 @@
         loadThresholds();
         checkTelegramStatus();
         seedData();
-        setTimeout(resizeCanvas, 50);
         updateDashboard();
         setInterval(generateNextData, 3000);
 

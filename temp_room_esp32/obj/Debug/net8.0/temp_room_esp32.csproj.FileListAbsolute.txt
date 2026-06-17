@@ -842,7 +842,6 @@ D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\System.Conf
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\System.Reactive.dll
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\System.Reflection.MetadataLoadContext.dll
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
-D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\System.Text.Json.dll
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\Websocket.Client.dll
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\af\Humanizer.resources.dll
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\ar\Humanizer.resources.dll
@@ -1018,12 +1017,6 @@ D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\scopedcss\p
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets.build.json
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets.development.json
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets\msbuild.temp_room_esp32.Microsoft.AspNetCore.StaticWebAssets.props
-D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets\msbuild.temp_room_esp32.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets\msbuild.build.temp_room_esp32.props
-D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.temp_room_esp32.props
-D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.temp_room_esp32.props
-D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets.pack.json
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\temp_roo.E9E26890.Up2Date
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\temp_room_esp32.dll
@@ -1031,9 +1024,14 @@ D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\refint\temp
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\temp_room_esp32.pdb
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\temp_room_esp32.genruntimeconfig.cache
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\ref\temp_room_esp32.dll
-D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\esp32-dc366-firebase-adminsdk-fbsvc-a9cc1032aa.json
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\Google.Apis.dll
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\Google.Apis.Auth.dll
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\Google.Apis.Core.dll
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\System.Management.dll
 D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Management.dll
+D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\rpswa.dswa.cache.json
+D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\rjimswa.dswa.cache.json
+D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\obj\Debug\net8.0\staticwebassets.build.json.cache
+D:\Giam_sat_nhiet_do_do_am_kho_lanh\temp_room_esp32\bin\Debug\net8.0\esp32-dc366-firebase-adminsdk-fbsvc-a9cc1032aa.json
